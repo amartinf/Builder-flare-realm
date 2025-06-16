@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -27,6 +27,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -40,6 +51,8 @@ import {
   AlertTriangle,
   Tag,
   Palette,
+  Download,
+  Upload,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import {
@@ -70,8 +83,65 @@ interface EditDialogState {
   isNew: boolean;
 }
 
+const CONFIG_STORAGE_KEY = "auditpro-configuration";
+
 export default function Configuration() {
   const { toast } = useToast();
+
+  // Load configuration from localStorage on mount
+  const loadConfiguration = () => {
+    try {
+      const stored = localStorage.getItem(CONFIG_STORAGE_KEY);
+      if (stored) {
+        const config = JSON.parse(stored);
+        return {
+          auditTypes: config.auditTypes || getAuditTypeOptions(),
+          auditStatuses: config.auditStatuses || getAuditStatusOptions(),
+          evidenceCategories:
+            config.evidenceCategories || getEvidenceCategoryOptions(),
+          ncCategories: config.ncCategories || getNCCategoryOptions(),
+          ncSeverities: config.ncSeverities || getNCSeverityOptions(),
+          ncStatuses: config.ncStatuses || getNCStatusOptions(),
+        };
+      }
+    } catch (error) {
+      console.error("Error loading configuration:", error);
+    }
+
+    return {
+      auditTypes: getAuditTypeOptions(),
+      auditStatuses: getAuditStatusOptions(),
+      evidenceCategories: getEvidenceCategoryOptions(),
+      ncCategories: getNCCategoryOptions(),
+      ncSeverities: getNCSeverityOptions(),
+      ncStatuses: getNCStatusOptions(),
+    };
+  };
+
+  const initialConfig = loadConfiguration();
+
+  // State for managing editable data
+  const [auditTypes, setAuditTypes] = useState<AuditType[]>(
+    initialConfig.auditTypes,
+  );
+  const [auditStatuses, setAuditStatuses] = useState<AuditStatus[]>(
+    initialConfig.auditStatuses,
+  );
+  const [evidenceCategories, setEvidenceCategories] = useState<AuditCategory[]>(
+    initialConfig.evidenceCategories,
+  );
+  const [ncCategories, setNCCategories] = useState<AuditCategory[]>(
+    initialConfig.ncCategories,
+  );
+  const [ncSeverities, setNCSeverities] = useState<NonConformitySeverity[]>(
+    initialConfig.ncSeverities,
+  );
+  const [ncStatuses, setNCStatuses] = useState<NonConformityStatus[]>(
+    initialConfig.ncStatuses,
+  );
+
+  const [hasChanges, setHasChanges] = useState(false);
+
   const [editDialog, setEditDialog] = useState<EditDialogState>({
     isOpen: false,
     type: null,
@@ -87,6 +157,28 @@ export default function Configuration() {
     badge: "default",
     priority: 1,
   });
+
+  // Save configuration to localStorage whenever data changes
+  useEffect(() => {
+    const config = {
+      auditTypes,
+      auditStatuses,
+      evidenceCategories,
+      ncCategories,
+      ncSeverities,
+      ncStatuses,
+    };
+
+    localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+    setHasChanges(true);
+  }, [
+    auditTypes,
+    auditStatuses,
+    evidenceCategories,
+    ncCategories,
+    ncSeverities,
+    ncStatuses,
+  ]);
 
   const resetForm = () => {
     setFormData({
@@ -136,7 +228,145 @@ export default function Configuration() {
   };
 
   const handleSave = () => {
-    // En una aplicación real, aquí se guardarían los cambios en la base de datos
+    if (!formData.value || !formData.label) {
+      toast({
+        title: "Error",
+        description: "El valor y la etiqueta son requeridos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for duplicate values
+    const checkDuplicate = (items: any[], currentValue?: string) => {
+      return items.some(
+        (item) =>
+          item.value === formData.value &&
+          (!currentValue || item.value !== currentValue),
+      );
+    };
+
+    let isDuplicate = false;
+    switch (editDialog.type) {
+      case "auditType":
+        isDuplicate = checkDuplicate(auditTypes, editDialog.item?.value);
+        break;
+      case "auditStatus":
+        isDuplicate = checkDuplicate(auditStatuses, editDialog.item?.value);
+        break;
+      case "evidenceCategory":
+        isDuplicate = checkDuplicate(
+          evidenceCategories,
+          editDialog.item?.value,
+        );
+        break;
+      case "ncCategory":
+        isDuplicate = checkDuplicate(ncCategories, editDialog.item?.value);
+        break;
+      case "ncSeverity":
+        isDuplicate = checkDuplicate(ncSeverities, editDialog.item?.value);
+        break;
+      case "ncStatus":
+        isDuplicate = checkDuplicate(ncStatuses, editDialog.item?.value);
+        break;
+    }
+
+    if (isDuplicate) {
+      toast({
+        title: "Error",
+        description: "Ya existe un elemento con ese valor",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newItem = { ...formData };
+
+    if (editDialog.isNew) {
+      // Agregar nuevo elemento
+      switch (editDialog.type) {
+        case "auditType":
+          setAuditTypes([...auditTypes, newItem as AuditType]);
+          break;
+        case "auditStatus":
+          setAuditStatuses([...auditStatuses, newItem as AuditStatus]);
+          break;
+        case "evidenceCategory":
+          setEvidenceCategories([
+            ...evidenceCategories,
+            newItem as AuditCategory,
+          ]);
+          break;
+        case "ncCategory":
+          setNCCategories([...ncCategories, newItem as AuditCategory]);
+          break;
+        case "ncSeverity":
+          setNCSeverities([...ncSeverities, newItem as NonConformitySeverity]);
+          break;
+        case "ncStatus":
+          setNCStatuses([...ncStatuses, newItem as NonConformityStatus]);
+          break;
+      }
+    } else {
+      // Actualizar elemento existente
+      switch (editDialog.type) {
+        case "auditType":
+          setAuditTypes(
+            auditTypes.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as AuditType)
+                : item,
+            ),
+          );
+          break;
+        case "auditStatus":
+          setAuditStatuses(
+            auditStatuses.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as AuditStatus)
+                : item,
+            ),
+          );
+          break;
+        case "evidenceCategory":
+          setEvidenceCategories(
+            evidenceCategories.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as AuditCategory)
+                : item,
+            ),
+          );
+          break;
+        case "ncCategory":
+          setNCCategories(
+            ncCategories.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as AuditCategory)
+                : item,
+            ),
+          );
+          break;
+        case "ncSeverity":
+          setNCSeverities(
+            ncSeverities.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as NonConformitySeverity)
+                : item,
+            ),
+          );
+          break;
+        case "ncStatus":
+          setNCStatuses(
+            ncStatuses.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as NonConformityStatus)
+                : item,
+            ),
+          );
+          break;
+      }
+    }
+
     toast({
       title: editDialog.isNew ? "Elemento creado" : "Elemento actualizado",
       description: `${formData.label} ha sido ${editDialog.isNew ? "creado" : "actualizado"} exitosamente`,
@@ -145,11 +375,77 @@ export default function Configuration() {
   };
 
   const handleDelete = (type: string, item: any) => {
-    // En una aplicación real, aquí se eliminaría el elemento
+    switch (type) {
+      case "auditType":
+        setAuditTypes(auditTypes.filter((t) => t.value !== item.value));
+        break;
+      case "auditStatus":
+        setAuditStatuses(auditStatuses.filter((s) => s.value !== item.value));
+        break;
+      case "evidenceCategory":
+        setEvidenceCategories(
+          evidenceCategories.filter((c) => c.value !== item.value),
+        );
+        break;
+      case "ncCategory":
+        setNCCategories(ncCategories.filter((c) => c.value !== item.value));
+        break;
+      case "ncSeverity":
+        setNCSeverities(ncSeverities.filter((s) => s.value !== item.value));
+        break;
+      case "ncStatus":
+        setNCStatuses(ncStatuses.filter((s) => s.value !== item.value));
+        break;
+    }
+
     toast({
       title: "Elemento eliminado",
       description: `${item.label} ha sido eliminado exitosamente`,
       variant: "destructive",
+    });
+  };
+
+  const handleResetAll = () => {
+    setAuditTypes(getAuditTypeOptions());
+    setAuditStatuses(getAuditStatusOptions());
+    setEvidenceCategories(getEvidenceCategoryOptions());
+    setNCCategories(getNCCategoryOptions());
+    setNCSeverities(getNCSeverityOptions());
+    setNCStatuses(getNCStatusOptions());
+
+    localStorage.removeItem(CONFIG_STORAGE_KEY);
+    setHasChanges(false);
+
+    toast({
+      title: "Configuración restablecida",
+      description: "Se ha restaurado la configuración predeterminada",
+    });
+  };
+
+  const handleExportConfig = () => {
+    const config = {
+      auditTypes,
+      auditStatuses,
+      evidenceCategories,
+      ncCategories,
+      ncSeverities,
+      ncStatuses,
+      exportDate: new Date().toISOString(),
+    };
+
+    const blob = new Blob([JSON.stringify(config, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "auditpro-configuration.json";
+    a.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Configuración exportada",
+      description: "El archivo de configuración ha sido descargado",
     });
   };
 
@@ -198,7 +494,7 @@ export default function Configuration() {
           {items.map((item, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-3 border rounded-lg"
+              className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 {showColor && item.color && (
@@ -237,16 +533,39 @@ export default function Configuration() {
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDelete(type!, item)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. Se eliminará
+                        permanentemente "{item.label}" del sistema.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(type!, item)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           ))}
+          {items.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No hay elementos configurados
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -256,18 +575,55 @@ export default function Configuration() {
     <Layout>
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Settings className="w-6 h-6 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Settings className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Configuración del Sistema
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Gestiona los tipos, estados y categorías utilizados en el
+                sistema de auditorías
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Configuración del Sistema
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gestiona los tipos, estados y categorías utilizados en el sistema
-              de auditorías
-            </p>
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExportConfig}>
+              <Download className="w-4 h-4 mr-2" />
+              Exportar
+            </Button>
+            {hasChanges && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Restablecer
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      ¿Restablecer configuración?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción restaurará la configuración predeterminada y
+                      se perderán todos los cambios personalizados. Esta acción
+                      no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetAll}>
+                      Restablecer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
 
@@ -279,9 +635,9 @@ export default function Configuration() {
               <div>
                 <p className="font-medium text-warning-800">Nota importante</p>
                 <p className="text-sm text-warning-700 mt-1">
-                  Los cambios en esta configuración afectarán a todas las
-                  auditorías y no conformidades existentes. Se recomienda hacer
-                  respaldos antes de realizar modificaciones importantes.
+                  Los cambios en esta configuración se guardan automáticamente
+                  en el navegador. Para cambios permanentes en producción, debes
+                  actualizar el archivo de configuración del servidor.
                 </p>
               </div>
             </div>
@@ -313,7 +669,7 @@ export default function Configuration() {
             <ConfigurationSection
               title="Tipos de Auditoría"
               description="Define los tipos de auditoría disponibles en el sistema"
-              items={getAuditTypeOptions()}
+              items={auditTypes}
               type="auditType"
               showColor={true}
             />
@@ -321,7 +677,7 @@ export default function Configuration() {
             <ConfigurationSection
               title="Estados de Auditoría"
               description="Define los estados por los que puede pasar una auditoría"
-              items={getAuditStatusOptions()}
+              items={auditStatuses}
               type="auditStatus"
               showColor={true}
               showBadge={true}
@@ -333,7 +689,7 @@ export default function Configuration() {
             <ConfigurationSection
               title="Severidades de No Conformidad"
               description="Define los niveles de severidad para las no conformidades"
-              items={getNCSeverityOptions()}
+              items={ncSeverities}
               type="ncSeverity"
               showColor={true}
               showBadge={true}
@@ -343,7 +699,7 @@ export default function Configuration() {
             <ConfigurationSection
               title="Estados de No Conformidad"
               description="Define los estados por los que puede pasar una no conformidad"
-              items={getNCStatusOptions()}
+              items={ncStatuses}
               type="ncStatus"
               showColor={true}
               showBadge={true}
@@ -352,7 +708,7 @@ export default function Configuration() {
             <ConfigurationSection
               title="Categorías de No Conformidad"
               description="Define las categorías para clasificar las no conformidades"
-              items={getNCCategoryOptions()}
+              items={ncCategories}
               type="ncCategory"
             />
           </TabsContent>
@@ -362,7 +718,7 @@ export default function Configuration() {
             <ConfigurationSection
               title="Categorías de Evidencia"
               description="Define las categorías para clasificar las evidencias"
-              items={getEvidenceCategoryOptions()}
+              items={evidenceCategories}
               type="evidenceCategory"
             />
           </TabsContent>
