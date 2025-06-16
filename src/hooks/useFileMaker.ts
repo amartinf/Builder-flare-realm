@@ -7,7 +7,9 @@ import {
   FileMakerNonConformity,
   FileMakerEvidence,
   FileMakerComment,
+  shouldUseMockData,
 } from "../services/filemakerApi";
+import { MockFileMakerAPI } from "../services/mockData";
 
 // Types for our application data models
 export interface Audit {
@@ -134,20 +136,42 @@ export const useAudits = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fileMakerAPI.getRecords<FileMakerAudit>(
-        LAYOUTS.AUDITS,
-      );
-      const mappedAudits = response.response.data?.map(mapFileMakerAudit) || [];
-      setAudits(mappedAudits);
+      if (shouldUseMockData()) {
+        // Use mock data for development
+        const mockAudits = await MockFileMakerAPI.getAudits();
+        setAudits(mockAudits);
+      } else {
+        // Use real FileMaker API
+        const response = await fileMakerAPI.getRecords<FileMakerAudit>(
+          LAYOUTS.AUDITS,
+        );
+        const mappedAudits =
+          response.response.data?.map(mapFileMakerAudit) || [];
+        setAudits(mappedAudits);
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Error al cargar auditorías";
       setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+
+      // Don't show error toast for missing FileMaker config in development
+      if (!shouldUseMockData()) {
+        toast({
+          title: "Error de conexión",
+          description:
+            "No se pudo conectar con FileMaker. Usando datos de demostración.",
+          variant: "destructive",
+        });
+      }
+
+      // Fallback to mock data if FileMaker fails
+      try {
+        const mockAudits = await MockFileMakerAPI.getAudits();
+        setAudits(mockAudits);
+        setError(null);
+      } catch (mockErr) {
+        console.error("Mock data error:", mockErr);
+      }
     } finally {
       setLoading(false);
     }
@@ -156,24 +180,9 @@ export const useAudits = () => {
   const createAudit = useCallback(
     async (auditData: Omit<Audit, "id" | "nonConformities" | "evidences">) => {
       try {
-        const fmData = {
-          "Audits::Name": auditData.name,
-          "Audits::Type": auditData.type,
-          "Audits::Status": auditData.status,
-          "Audits::Progress": auditData.progress,
-          "Audits::DueDate": auditData.dueDate,
-          "Audits::Auditor": auditData.auditor,
-          "Audits::CreatedDate": auditData.createdDate,
-          "Audits::Description": auditData.description || "",
-        };
-
-        const response = await fileMakerAPI.createRecord<FileMakerAudit>(
-          LAYOUTS.AUDITS,
-          fmData,
-        );
-
-        if (response.response.data?.[0]) {
-          const newAudit = mapFileMakerAudit(response.response.data[0]);
+        if (shouldUseMockData()) {
+          // Use mock data
+          const newAudit = await MockFileMakerAPI.createAudit(auditData);
           setAudits((prev) => [...prev, newAudit]);
 
           toast({
@@ -182,6 +191,35 @@ export const useAudits = () => {
           });
 
           return newAudit;
+        } else {
+          // Use real FileMaker API
+          const fmData = {
+            "Audits::Name": auditData.name,
+            "Audits::Type": auditData.type,
+            "Audits::Status": auditData.status,
+            "Audits::Progress": auditData.progress,
+            "Audits::DueDate": auditData.dueDate,
+            "Audits::Auditor": auditData.auditor,
+            "Audits::CreatedDate": auditData.createdDate,
+            "Audits::Description": auditData.description || "",
+          };
+
+          const response = await fileMakerAPI.createRecord<FileMakerAudit>(
+            LAYOUTS.AUDITS,
+            fmData,
+          );
+
+          if (response.response.data?.[0]) {
+            const newAudit = mapFileMakerAudit(response.response.data[0]);
+            setAudits((prev) => [...prev, newAudit]);
+
+            toast({
+              title: "Auditoría creada",
+              description: `La auditoría "${auditData.name}" ha sido creada exitosamente`,
+            });
+
+            return newAudit;
+          }
         }
       } catch (err) {
         const errorMessage =
@@ -200,38 +238,48 @@ export const useAudits = () => {
   const updateAudit = useCallback(
     async (id: number, auditData: Partial<Audit>) => {
       try {
-        // Find the FileMaker record ID
-        const audit = audits.find((a) => a.id === id);
-        if (!audit) throw new Error("Auditoría no encontrada");
+        if (shouldUseMockData()) {
+          // Use mock data
+          const updatedAudit = await MockFileMakerAPI.updateAudit(
+            id,
+            auditData,
+          );
+          setAudits((prev) =>
+            prev.map((a) => (a.id === id ? updatedAudit : a)),
+          );
+        } else {
+          // Use real FileMaker API
+          const audit = audits.find((a) => a.id === id);
+          if (!audit) throw new Error("Auditoría no encontrada");
 
-        // Get record to find recordId
-        const findResponse = await fileMakerAPI.findRecords<FileMakerAudit>(
-          LAYOUTS.AUDITS,
-          [{ "Audits::ID": id }],
-        );
+          const findResponse = await fileMakerAPI.findRecords<FileMakerAudit>(
+            LAYOUTS.AUDITS,
+            [{ "Audits::ID": id }],
+          );
 
-        if (!findResponse.response.data?.[0]?.recordId) {
-          throw new Error("No se pudo encontrar el registro en FileMaker");
+          if (!findResponse.response.data?.[0]?.recordId) {
+            throw new Error("No se pudo encontrar el registro en FileMaker");
+          }
+
+          const recordId = findResponse.response.data[0].recordId;
+
+          const fmData: Partial<Record<keyof FileMakerAudit, any>> = {};
+          if (auditData.name) fmData["Audits::Name"] = auditData.name;
+          if (auditData.type) fmData["Audits::Type"] = auditData.type;
+          if (auditData.status) fmData["Audits::Status"] = auditData.status;
+          if (auditData.progress !== undefined)
+            fmData["Audits::Progress"] = auditData.progress;
+          if (auditData.dueDate) fmData["Audits::DueDate"] = auditData.dueDate;
+          if (auditData.auditor) fmData["Audits::Auditor"] = auditData.auditor;
+          if (auditData.description)
+            fmData["Audits::Description"] = auditData.description;
+
+          await fileMakerAPI.updateRecord(LAYOUTS.AUDITS, recordId, fmData);
+
+          setAudits((prev) =>
+            prev.map((a) => (a.id === id ? { ...a, ...auditData } : a)),
+          );
         }
-
-        const recordId = findResponse.response.data[0].recordId;
-
-        const fmData: Partial<Record<keyof FileMakerAudit, any>> = {};
-        if (auditData.name) fmData["Audits::Name"] = auditData.name;
-        if (auditData.type) fmData["Audits::Type"] = auditData.type;
-        if (auditData.status) fmData["Audits::Status"] = auditData.status;
-        if (auditData.progress !== undefined)
-          fmData["Audits::Progress"] = auditData.progress;
-        if (auditData.dueDate) fmData["Audits::DueDate"] = auditData.dueDate;
-        if (auditData.auditor) fmData["Audits::Auditor"] = auditData.auditor;
-        if (auditData.description)
-          fmData["Audits::Description"] = auditData.description;
-
-        await fileMakerAPI.updateRecord(LAYOUTS.AUDITS, recordId, fmData);
-
-        setAudits((prev) =>
-          prev.map((a) => (a.id === id ? { ...a, ...auditData } : a)),
-        );
 
         toast({
           title: "Auditoría actualizada",
@@ -254,18 +302,23 @@ export const useAudits = () => {
   const deleteAudit = useCallback(
     async (id: number) => {
       try {
-        // Find the FileMaker record ID
-        const findResponse = await fileMakerAPI.findRecords<FileMakerAudit>(
-          LAYOUTS.AUDITS,
-          [{ "Audits::ID": id }],
-        );
+        if (shouldUseMockData()) {
+          // Use mock data
+          await MockFileMakerAPI.deleteAudit(id);
+        } else {
+          // Use real FileMaker API
+          const findResponse = await fileMakerAPI.findRecords<FileMakerAudit>(
+            LAYOUTS.AUDITS,
+            [{ "Audits::ID": id }],
+          );
 
-        if (!findResponse.response.data?.[0]?.recordId) {
-          throw new Error("No se pudo encontrar el registro en FileMaker");
+          if (!findResponse.response.data?.[0]?.recordId) {
+            throw new Error("No se pudo encontrar el registro en FileMaker");
+          }
+
+          const recordId = findResponse.response.data[0].recordId;
+          await fileMakerAPI.deleteRecord(LAYOUTS.AUDITS, recordId);
         }
-
-        const recordId = findResponse.response.data[0].recordId;
-        await fileMakerAPI.deleteRecord(LAYOUTS.AUDITS, recordId);
 
         setAudits((prev) => prev.filter((a) => a.id !== id));
 

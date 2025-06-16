@@ -44,6 +44,13 @@ class FileMakerAPI {
 
   // Authentication
   async authenticate(): Promise<string> {
+    // Check if FileMaker is configured
+    if (!isFileMakerConfigured()) {
+      throw new Error(
+        "FileMaker not configured. Please set VITE_FILEMAKER_* environment variables.",
+      );
+    }
+
     if (this.auth && this.auth.expiry > Date.now()) {
       return this.auth.token;
     }
@@ -296,12 +303,23 @@ export interface FileMakerComment {
 // Environment configuration
 const getFileMakerConfig = (): FileMakerConfig => {
   return {
-    server: import.meta.env.VITE_FILEMAKER_SERVER || "your-server.com",
+    server: import.meta.env.VITE_FILEMAKER_SERVER || "",
     database: import.meta.env.VITE_FILEMAKER_DATABASE || "AuditPro",
-    username: import.meta.env.VITE_FILEMAKER_USERNAME || "api_user",
-    password: import.meta.env.VITE_FILEMAKER_PASSWORD || "api_password",
+    username: import.meta.env.VITE_FILEMAKER_USERNAME || "",
+    password: import.meta.env.VITE_FILEMAKER_PASSWORD || "",
     layout: "API_Layout", // Default layout
   };
+};
+
+// Check if FileMaker is configured
+export const isFileMakerConfigured = (): boolean => {
+  const config = getFileMakerConfig();
+  return !!(config.server && config.username && config.password);
+};
+
+// Check if we should use mock data
+export const shouldUseMockData = (): boolean => {
+  return import.meta.env.VITE_MOCK_DATA === "true" || !isFileMakerConfigured();
 };
 
 // Create singleton instance
