@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Audits from "./pages/Audits";
+import AuditDetail from "./pages/AuditDetail";
 import NonConformities from "./pages/NonConformities";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +55,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Audits />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/audits/:id"
+            element={
+              <ProtectedRoute>
+                <AuditDetail />
               </ProtectedRoute>
             }
           />
