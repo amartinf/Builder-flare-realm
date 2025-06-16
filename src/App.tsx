@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Audits from "./pages/Audits";
 import AuditDetail from "./pages/AuditDetail";
 import NonConformities from "./pages/NonConformities";
+import CorrectiveActions from "./pages/CorrectiveActions";
+import ClientPortal from "./pages/ClientPortal";
 import Configuration from "./pages/Configuration";
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +74,22 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <NonConformities />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/corrective-actions"
+            element={
+              <ProtectedRoute>
+                <CorrectiveActions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client-portal"
+            element={
+              <ProtectedRoute>
+                <ClientPortal />
               </ProtectedRoute>
             }
           />

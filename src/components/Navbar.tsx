@@ -28,6 +28,8 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Auditorías", href: "/audits", icon: FileText },
   { name: "No Conformidades", href: "/non-conformities", icon: AlertTriangle },
+  { name: "Acciones Correctivas", href: "/corrective-actions", icon: FileText },
+  { name: "Portal Cliente", href: "/client-portal", icon: User },
 ];
 
 export function Navbar() {
