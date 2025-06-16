@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Audits from "./pages/Audits";
 import AuditDetail from "./pages/AuditDetail";
 import NonConformities from "./pages/NonConformities";
+import Configuration from "./pages/Configuration";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <NonConformities />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/configuration"
+            element={
+              <ProtectedRoute>
+                <Configuration />
               </ProtectedRoute>
             }
           />

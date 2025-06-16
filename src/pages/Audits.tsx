@@ -45,6 +45,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAudits } from "@/hooks/useFileMaker";
 import {
+  getAuditTypeOptions,
+  getAuditStatusOptions,
+  getAuditStatus,
+  AUDIT_TYPE_FILTER_MAP,
+  AUDIT_STATUS_FILTER_MAP,
+} from "@/config/auditOptions";
+import {
   FileText,
   Plus,
   Search,
@@ -64,18 +71,32 @@ import { Progress } from "@/components/ui/progress";
 // Types imported from FileMaker hooks
 
 function getStatusBadge(status: string) {
-  switch (status) {
-    case "En progreso":
-      return <Badge className="status-pending">En progreso</Badge>;
-    case "Completada":
-      return <Badge className="status-approved">Completada</Badge>;
-    case "Pendiente":
-      return <Badge className="status-draft">Pendiente</Badge>;
-    case "Borrador":
-      return <Badge variant="secondary">Borrador</Badge>;
-    default:
-      return <Badge variant="secondary">{status}</Badge>;
+  const statusConfig = getAuditStatus(status);
+  if (!statusConfig) {
+    return <Badge variant="secondary">{status}</Badge>;
   }
+
+  // Map our custom badge types to actual Badge variants
+  const variantMap = {
+    pending: "status-pending",
+    approved: "status-approved",
+    draft: "status-draft",
+    default: "default",
+    secondary: "secondary",
+    destructive: "destructive",
+    outline: "outline",
+  } as const;
+
+  const className = variantMap[statusConfig.badge] || statusConfig.badge;
+
+  return (
+    <Badge
+      className={className.startsWith("status-") ? className : undefined}
+      variant={className.startsWith("status-") ? undefined : (className as any)}
+    >
+      {statusConfig.label}
+    </Badge>
+  );
 }
 
 export default function Audits() {
@@ -121,17 +142,13 @@ export default function Audits() {
         .includes(searchQuery.toLowerCase());
       const matchesStatus =
         statusFilter === "all" ||
-        (statusFilter === "draft" && audit.status === "Borrador") ||
-        (statusFilter === "pending" && audit.status === "Pendiente") ||
-        (statusFilter === "progress" && audit.status === "En progreso") ||
-        (statusFilter === "completed" && audit.status === "Completada");
+        audit.status === AUDIT_STATUS_FILTER_MAP[statusFilter] ||
+        audit.status === statusFilter;
+
       const matchesType =
         typeFilter === "all" ||
-        (typeFilter === "quality" && audit.type === "Calidad") ||
-        (typeFilter === "environmental" && audit.type === "Ambiental") ||
-        (typeFilter === "security" && audit.type === "Seguridad") ||
-        (typeFilter === "financial" && audit.type === "Financiera") ||
-        (typeFilter === "processes" && audit.type === "Procesos");
+        audit.type === AUDIT_TYPE_FILTER_MAP[typeFilter] ||
+        audit.type === typeFilter;
 
       return matchesSearch && matchesStatus && matchesType;
     });
@@ -290,11 +307,11 @@ export default function Audits() {
                         <SelectValue placeholder="Selecciona el tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Calidad">Calidad</SelectItem>
-                        <SelectItem value="Ambiental">Ambiental</SelectItem>
-                        <SelectItem value="Seguridad">Seguridad</SelectItem>
-                        <SelectItem value="Financiera">Financiera</SelectItem>
-                        <SelectItem value="Procesos">Procesos</SelectItem>
+                        {getAuditTypeOptions().map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -384,10 +401,11 @@ export default function Audits() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="draft">Borrador</SelectItem>
-                    <SelectItem value="pending">Pendiente</SelectItem>
-                    <SelectItem value="progress">En progreso</SelectItem>
-                    <SelectItem value="completed">Completada</SelectItem>
+                    {getAuditStatusOptions().map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -396,11 +414,11 @@ export default function Audits() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los tipos</SelectItem>
-                    <SelectItem value="quality">Calidad</SelectItem>
-                    <SelectItem value="environmental">Ambiental</SelectItem>
-                    <SelectItem value="security">Seguridad</SelectItem>
-                    <SelectItem value="financial">Financiera</SelectItem>
-                    <SelectItem value="processes">Procesos</SelectItem>
+                    {getAuditTypeOptions().map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Button
@@ -447,7 +465,7 @@ export default function Audits() {
             <CardContent>
               <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 text-red-600">
-                Error de conexi��n
+                Error de conexión
               </h3>
               <p className="text-muted-foreground mb-4">{error}</p>
               <Button

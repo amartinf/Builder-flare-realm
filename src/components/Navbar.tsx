@@ -135,6 +135,12 @@ export function Navbar() {
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Configuración</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/configuration">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configuración del Sistema</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
