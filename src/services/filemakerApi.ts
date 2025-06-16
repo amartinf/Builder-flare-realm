@@ -296,10 +296,10 @@ export interface FileMakerComment {
 // Environment configuration
 const getFileMakerConfig = (): FileMakerConfig => {
   return {
-    server: process.env.REACT_APP_FILEMAKER_SERVER || "your-server.com",
-    database: process.env.REACT_APP_FILEMAKER_DATABASE || "AuditPro",
-    username: process.env.REACT_APP_FILEMAKER_USERNAME || "api_user",
-    password: process.env.REACT_APP_FILEMAKER_PASSWORD || "api_password",
+    server: import.meta.env.VITE_FILEMAKER_SERVER || "your-server.com",
+    database: import.meta.env.VITE_FILEMAKER_DATABASE || "AuditPro",
+    username: import.meta.env.VITE_FILEMAKER_USERNAME || "api_user",
+    password: import.meta.env.VITE_FILEMAKER_PASSWORD || "api_password",
     layout: "API_Layout", // Default layout
   };
 };
