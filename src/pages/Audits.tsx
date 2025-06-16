@@ -43,7 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+import { useAudits } from "@/hooks/useFileMaker";
 import {
   FileText,
   Plus,
@@ -56,93 +56,12 @@ import {
   Edit,
   Copy,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Progress } from "@/components/ui/progress";
 
-// Types
-interface Audit {
-  id: number;
-  name: string;
-  type: string;
-  status: string;
-  progress: number;
-  dueDate: string;
-  auditor: string;
-  nonConformities: number;
-  evidences: number;
-  createdDate: string;
-  description?: string;
-}
-
-// Initial data
-const initialAudits: Audit[] = [
-  {
-    id: 1,
-    name: "Auditoría ISO 9001 - Planta Norte",
-    type: "Calidad",
-    status: "En progreso",
-    progress: 75,
-    dueDate: "2024-01-25",
-    auditor: "María González",
-    nonConformities: 2,
-    evidences: 12,
-    createdDate: "2024-01-10",
-    description: "Auditoría anual de calidad para certificación ISO 9001",
-  },
-  {
-    id: 2,
-    name: "Auditoría Ambiental - Sede Central",
-    type: "Ambiental",
-    status: "Pendiente",
-    progress: 25,
-    dueDate: "2024-02-01",
-    auditor: "Carlos Ruiz",
-    nonConformities: 0,
-    evidences: 3,
-    createdDate: "2024-01-12",
-    description: "Evaluación del sistema de gestión ambiental",
-  },
-  {
-    id: 3,
-    name: "Auditoría de Seguridad - Almacén",
-    type: "Seguridad",
-    status: "Completada",
-    progress: 100,
-    dueDate: "2024-01-15",
-    auditor: "Ana López",
-    nonConformities: 1,
-    evidences: 24,
-    createdDate: "2024-01-05",
-    description: "Auditoría de seguridad y salud ocupacional",
-  },
-  {
-    id: 4,
-    name: "Auditoría Financiera Q4",
-    type: "Financiera",
-    status: "En progreso",
-    progress: 60,
-    dueDate: "2024-01-30",
-    auditor: "Luis Martín",
-    nonConformities: 3,
-    evidences: 8,
-    createdDate: "2024-01-08",
-    description: "Revisión financiera del cuarto trimestre",
-  },
-  {
-    id: 5,
-    name: "Auditoría Interna de Procesos",
-    type: "Procesos",
-    status: "Borrador",
-    progress: 10,
-    dueDate: "2024-02-15",
-    auditor: "Carmen Torres",
-    nonConformities: 0,
-    evidences: 1,
-    createdDate: "2024-01-18",
-    description: "Evaluación de procesos internos de la organización",
-  },
-];
+// Types imported from FileMaker hooks
 
 function getStatusBadge(status: string) {
   switch (status) {
@@ -160,14 +79,18 @@ function getStatusBadge(status: string) {
 }
 
 export default function Audits() {
-  const { toast } = useToast();
-  const [audits, setAudits] = useState<Audit[]>(initialAudits);
+  // FileMaker integration
+  const { audits, loading, error, createAudit, updateAudit, deleteAudit } =
+    useAudits();
+
+  // Local state for UI
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deleteAuditId, setDeleteAuditId] = useState<number | null>(null);
-  const [editingAudit, setEditingAudit] = useState<Audit | null>(null);
+  const [editingAudit, setEditingAudit] = useState<any | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state for new/edit audit
   const [formData, setFormData] = useState({
@@ -215,47 +138,41 @@ export default function Audits() {
   }, [audits, searchQuery, statusFilter, typeFilter]);
 
   // Create audit
-  const handleCreateAudit = () => {
+  const handleCreateAudit = async () => {
     if (
       !formData.name ||
       !formData.type ||
       !formData.auditor ||
       !formData.dueDate
     ) {
-      toast({
-        title: "Error",
-        description: "Por favor completa todos los campos requeridos",
-        variant: "destructive",
-      });
-      return;
+      return; // useToast error handled in hook
     }
 
-    const newAudit: Audit = {
-      id: Math.max(...audits.map((a) => a.id)) + 1,
-      name: formData.name,
-      type: formData.type,
-      auditor: formData.auditor,
-      dueDate: formData.dueDate,
-      description: formData.description,
-      status: "Borrador",
-      progress: 0,
-      nonConformities: 0,
-      evidences: 0,
-      createdDate: new Date().toISOString().split("T")[0],
-    };
+    setIsSubmitting(true);
+    try {
+      const auditData = {
+        name: formData.name,
+        type: formData.type,
+        auditor: formData.auditor,
+        dueDate: formData.dueDate,
+        description: formData.description,
+        status: "Borrador" as const,
+        progress: 0,
+        createdDate: new Date().toISOString().split("T")[0],
+      };
 
-    setAudits([...audits, newAudit]);
-    setIsCreateDialogOpen(false);
-    resetForm();
-
-    toast({
-      title: "Auditoría creada",
-      description: `La auditoría "${formData.name}" ha sido creada exitosamente`,
-    });
+      await createAudit(auditData);
+      setIsCreateDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      // Error handled by hook
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Edit audit
-  const handleEditAudit = (audit: Audit) => {
+  const handleEditAudit = (audit: any) => {
     setEditingAudit(audit);
     setFormData({
       name: audit.name,
@@ -268,55 +185,52 @@ export default function Audits() {
   };
 
   // Update audit
-  const handleUpdateAudit = () => {
+  const handleUpdateAudit = async () => {
     if (!editingAudit) return;
 
-    const updatedAudits = audits.map((audit) =>
-      audit.id === editingAudit.id ? { ...audit, ...formData } : audit,
-    );
-
-    setAudits(updatedAudits);
-    setIsCreateDialogOpen(false);
-    resetForm();
-
-    toast({
-      title: "Auditoría actualizada",
-      description: `La auditoría "${formData.name}" ha sido actualizada exitosamente`,
-    });
+    setIsSubmitting(true);
+    try {
+      await updateAudit(editingAudit.id, formData);
+      setIsCreateDialogOpen(false);
+      resetForm();
+    } catch (error) {
+      // Error handled by hook
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Duplicate audit
-  const handleDuplicateAudit = (audit: Audit) => {
-    const duplicatedAudit: Audit = {
-      ...audit,
-      id: Math.max(...audits.map((a) => a.id)) + 1,
-      name: `${audit.name} (Copia)`,
-      status: "Borrador",
-      progress: 0,
-      nonConformities: 0,
-      evidences: 0,
-      createdDate: new Date().toISOString().split("T")[0],
-    };
+  const handleDuplicateAudit = async (audit: any) => {
+    setIsSubmitting(true);
+    try {
+      const duplicatedData = {
+        name: `${audit.name} (Copia)`,
+        type: audit.type,
+        auditor: audit.auditor,
+        dueDate: audit.dueDate,
+        description: audit.description,
+        status: "Borrador" as const,
+        progress: 0,
+        createdDate: new Date().toISOString().split("T")[0],
+      };
 
-    setAudits([...audits, duplicatedAudit]);
-
-    toast({
-      title: "Auditoría duplicada",
-      description: `Se ha creado una copia de "${audit.name}"`,
-    });
+      await createAudit(duplicatedData);
+    } catch (error) {
+      // Error handled by hook
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Delete audit
-  const handleDeleteAudit = (id: number) => {
-    const auditToDelete = audits.find((a) => a.id === id);
-    setAudits(audits.filter((audit) => audit.id !== id));
-    setDeleteAuditId(null);
-
-    toast({
-      title: "Auditoría eliminada",
-      description: `La auditoría "${auditToDelete?.name}" ha sido eliminada`,
-      variant: "destructive",
-    });
+  const handleDeleteAudit = async (id: number) => {
+    try {
+      await deleteAudit(id);
+      setDeleteAuditId(null);
+    } catch (error) {
+      // Error handled by hook
+    }
   };
 
   return (
@@ -432,8 +346,16 @@ export default function Audits() {
                 </Button>
                 <Button
                   onClick={editingAudit ? handleUpdateAudit : handleCreateAudit}
+                  disabled={isSubmitting}
                 >
-                  {editingAudit ? "Actualizar" : "Crear"} auditoría
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {editingAudit ? "Actualizando..." : "Creando..."}
+                    </>
+                  ) : (
+                    `${editingAudit ? "Actualizar" : "Crear"} auditoría`
+                  )}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -507,8 +429,36 @@ export default function Audits() {
           </div>
         )}
 
-        {/* Audits Grid */}
-        {filteredAudits.length > 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <Loader2 className="w-12 h-12 text-muted-foreground mx-auto mb-4 animate-spin" />
+              <h3 className="text-lg font-semibold mb-2">
+                Cargando auditorías...
+              </h3>
+              <p className="text-muted-foreground">
+                Conectando con FileMaker y obteniendo datos
+              </p>
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-red-600">
+                Error de conexi��n
+              </h3>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+              >
+                Reintentar
+              </Button>
+            </CardContent>
+          </Card>
+        ) : filteredAudits.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredAudits.map((audit) => (
               <Card key={audit.id} className="audit-card hover:shadow-xl">
@@ -548,6 +498,7 @@ export default function Audits() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDuplicateAudit(audit)}
+                          disabled={isSubmitting}
                         >
                           <Copy className="w-4 h-4 mr-2" />
                           Duplicar
