@@ -186,12 +186,12 @@ export default function Audits() {
                     <CardTitle className="text-lg font-semibold line-clamp-2">
                       {audit.name}
                     </CardTitle>
-                    <CardDescription className="mt-1">
-                      <Badge variant="outline" className="mr-2">
-                        {audit.type}
-                      </Badge>
-                      Creada: {audit.createdDate}
-                    </CardDescription>
+                    <div className="mt-1 flex items-center gap-2">
+                      <Badge variant="outline">{audit.type}</Badge>
+                      <CardDescription className="m-0">
+                        Creada: {audit.createdDate}
+                      </CardDescription>
+                    </div>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
