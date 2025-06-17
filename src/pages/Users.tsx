@@ -61,6 +61,7 @@ import {
   Phone,
   Building,
   Shield,
+  Settings,
   MoreHorizontal,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
