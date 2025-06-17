@@ -220,6 +220,9 @@ export default function Configuration() {
     ncSeverities,
     ncStatuses,
     userRoles,
+    auditModalities,
+    isoStandards,
+    auditorRoles,
   ]);
 
   const resetForm = () => {
