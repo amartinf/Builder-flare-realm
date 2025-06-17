@@ -478,6 +478,12 @@ export const getNCSeverity = (value: string) =>
   NC_SEVERITIES.find((s) => s.value === value);
 export const getNCStatus = (value: string) =>
   NC_STATUSES.find((s) => s.value === value);
+export const getAuditModality = (value: string) =>
+  AUDIT_MODALITIES.find((m) => m.value === value);
+export const getISOStandard = (value: string) =>
+  ISO_STANDARDS.find((s) => s.value === value);
+export const getAuditorRole = (value: string) =>
+  AUDITOR_ROLES.find((r) => r.value === value);
 
 // Mapeo para filtros (valor interno vs valor de filtro)
 export const AUDIT_TYPE_FILTER_MAP: Record<string, string> = {
