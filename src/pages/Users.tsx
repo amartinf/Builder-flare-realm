@@ -381,7 +381,7 @@ export default function Users() {
   };
 
   const getRoleLabel = (roleValue: string): string => {
-    const role = USER_ROLES.find((r) => r.value === roleValue);
+    const role = availableRoles.find((r) => r.value === roleValue);
     return role ? role.label : roleValue;
   };
 
