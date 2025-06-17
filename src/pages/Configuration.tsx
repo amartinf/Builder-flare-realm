@@ -446,6 +446,7 @@ export default function Configuration() {
     setNCCategories(getNCCategoryOptions());
     setNCSeverities(getNCSeverityOptions());
     setNCStatuses(getNCStatusOptions());
+    setUserRoles(USER_ROLES);
 
     localStorage.removeItem(CONFIG_STORAGE_KEY);
     setHasChanges(false);
