@@ -841,10 +841,13 @@ export default function Audits() {
                                 const role = getAuditorRoleOptions().find(
                                   (r) => r.value === value,
                                 );
+                                const suggestedDays =
+                                  getSuggestedDaysForRole(value);
                                 setTeamMemberForm({
                                   ...teamMemberForm,
                                   role: value,
                                   isLeader: role?.isLeader || false,
+                                  assignedDays: suggestedDays,
                                 });
                               }}
                             >
@@ -872,6 +875,46 @@ export default function Audits() {
                                 ))}
                               </SelectContent>
                             </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="assigned-days">
+                              Jornadas Asignadas *
+                              {teamMemberForm.role && (
+                                <span className="text-xs text-muted-foreground ml-1">
+                                  (Sugerido:{" "}
+                                  {getSuggestedDaysForRole(teamMemberForm.role)}
+                                  )
+                                </span>
+                              )}
+                            </Label>
+                            <Input
+                              id="assigned-days"
+                              type="number"
+                              min="0"
+                              max={
+                                getRemainingDays() + teamMemberForm.assignedDays
+                              }
+                              value={teamMemberForm.assignedDays}
+                              onChange={(e) =>
+                                setTeamMemberForm({
+                                  ...teamMemberForm,
+                                  assignedDays: parseInt(e.target.value) || 0,
+                                })
+                              }
+                              className={
+                                teamMemberForm.assignedDays > getRemainingDays()
+                                  ? "border-red-500"
+                                  : ""
+                              }
+                            />
+                            {teamMemberForm.assignedDays >
+                              getRemainingDays() && (
+                              <p className="text-xs text-red-600">
+                                Excede las jornadas disponibles (
+                                {getRemainingDays()})
+                              </p>
+                            )}
                           </div>
                         </div>
 
