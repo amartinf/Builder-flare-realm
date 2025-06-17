@@ -285,6 +285,9 @@ export default function Configuration() {
       case "ncStatus":
         isDuplicate = checkDuplicate(ncStatuses, editDialog.item?.value);
         break;
+      case "userRole":
+        isDuplicate = checkDuplicate(userRoles, editDialog.item?.value);
+        break;
     }
 
     if (isDuplicate) {
