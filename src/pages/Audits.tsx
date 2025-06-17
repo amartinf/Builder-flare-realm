@@ -228,6 +228,40 @@ export default function Audits() {
     return diffDays + 1; // Include both start and end dates
   };
 
+  // Calculate total assigned days for all team members
+  const getTotalAssignedDays = () => {
+    return formData.teamMembers.reduce(
+      (total, member) => total + (member.assignedDays || 0),
+      0,
+    );
+  };
+
+  // Calculate remaining available days
+  const getRemainingDays = () => {
+    const totalAssigned = getTotalAssignedDays();
+    return Math.max(0, formData.workingDays - totalAssigned);
+  };
+
+  // Get suggested days for new member based on role
+  const getSuggestedDaysForRole = (role: string) => {
+    const roleConfig = getAuditorRoleOptions().find((r) => r.value === role);
+    if (!roleConfig) return 1;
+
+    // Suggest days based on role importance and remaining capacity
+    const remaining = getRemainingDays();
+    if (remaining <= 0) return 0;
+
+    if (roleConfig.isLeader) {
+      return Math.min(formData.workingDays, remaining); // Leaders typically work all days
+    } else if (role === "auditor_principal") {
+      return Math.min(Math.ceil(formData.workingDays * 0.8), remaining);
+    } else if (role === "experto_tecnico") {
+      return Math.min(Math.ceil(formData.workingDays * 0.5), remaining);
+    } else {
+      return Math.min(Math.ceil(formData.workingDays * 0.6), remaining);
+    }
+  };
+
   // Handle date changes and auto-calculate working days
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
     const newFormData = { ...formData, [field]: value };
