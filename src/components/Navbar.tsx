@@ -24,6 +24,7 @@ import {
   User,
   LogOut,
   ChevronDown,
+  Calendar,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -57,6 +58,11 @@ export default function Navbar() {
         { href: "/reports", icon: BarChart3, label: "Reportes" },
         { href: "/client-portal", icon: Building, label: "Portal Cliente" },
         { href: "/auditor-portal", icon: User, label: "Portal Auditor" },
+        {
+          href: "/secretary-portal",
+          icon: Calendar,
+          label: "Portal Secretaría",
+        },
         { href: "/diagnostics", icon: HelpCircle, label: "Diagnósticos" },
       ],
       auditor: [
@@ -75,7 +81,11 @@ export default function Navbar() {
         { href: "/reports", icon: BarChart3, label: "Reportes" },
       ],
       secretary: [
-        { href: "/secretary-portal", icon: Calendar, label: "Portal Secretaría" },
+        {
+          href: "/secretary-portal",
+          icon: Calendar,
+          label: "Portal Secretaría",
+        },
         { href: "/audits", icon: FileText, label: "Gestión de Auditorías" },
         { href: "/users", icon: Users, label: "Gestión de Equipos" },
         { href: "/reports", icon: BarChart3, label: "Reportes" },
@@ -95,7 +105,10 @@ export default function Navbar() {
     const configs = {
       admin: { label: "Administrador", color: "bg-red-100 text-red-800" },
       auditor: { label: "Auditor", color: "bg-blue-100 text-blue-800" },
-      secretary: { label: "Secretaría Técnica", color: "bg-purple-100 text-purple-800" },
+      secretary: {
+        label: "Secretaría Técnica",
+        color: "bg-purple-100 text-purple-800",
+      },
       client: { label: "Cliente", color: "bg-green-100 text-green-800" },
     };
     return configs[role];
@@ -268,11 +281,24 @@ export default function Navbar() {
                     <Button
                       variant="ghost"
                       className="w-full justify-start"
+                      onClick={() => switchRole("admin")}
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      Vista Administrador
+                      {currentRole === "admin" && (
+                        <span className="ml-auto text-xs">✓</span>
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
                       onClick={() => switchRole("auditor")}
                     >
                       <User className="w-4 h-4 mr-2" />
                       Vista Auditor
-                      {currentRole === "auditor" && <span className="ml-auto text-xs">✓</span>}
+                      {currentRole === "auditor" && (
+                        <span className="ml-auto text-xs">✓</span>
+                      )}
                     </Button>
                     <Button
                       variant="ghost"
@@ -281,18 +307,7 @@ export default function Navbar() {
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Vista Secretaría
-                      {currentRole === "secretary" && <span className="ml-auto text-xs">✓</span>}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onClick={() => switchRole("client")}
-                    >
-                      <Building className="w-4 h-4 mr-2" />
-                      Vista Cliente
-                      {currentRole === "client" && <span className="ml-auto text-xs">✓</span>}
-                    </Button>
-                      {currentRole === "auditor" && (
+                      {currentRole === "secretary" && (
                         <span className="ml-auto text-xs">✓</span>
                       )}
                     </Button>
