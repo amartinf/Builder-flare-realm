@@ -275,7 +275,7 @@ export default function Audits() {
 
   // Get suggested days for new member based on role
   const getSuggestedDaysForRole = (role: string) => {
-    const roleConfig = getAuditorRoleOptions().find((r) => r.value === role);
+    const roleConfig = availableAuditorRoles.find((r) => r.value === role);
     if (!roleConfig) return 1;
 
     // Suggest days based on role importance and remaining capacity
