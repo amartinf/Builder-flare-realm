@@ -108,6 +108,7 @@ export default function Configuration() {
           ncCategories: config.ncCategories || getNCCategoryOptions(),
           ncSeverities: config.ncSeverities || getNCSeverityOptions(),
           ncStatuses: config.ncStatuses || getNCStatusOptions(),
+          userRoles: config.userRoles || USER_ROLES,
         };
       }
     } catch (error) {
