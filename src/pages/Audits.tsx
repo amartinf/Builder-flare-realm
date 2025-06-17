@@ -168,15 +168,8 @@ export default function Audits() {
   };
 
   // FileMaker integration
-  const {
-    audits,
-    loading,
-    error,
-    fetchAudits,
-    createAudit,
-    updateAudit,
-    deleteAudit,
-  } = useAudits();
+  const { audits, loading, error, fetchAudits, createAudit, updateAudit, deleteAudit } =
+    useAudits();
 
   // Manual refresh function
   const handleRefresh = async () => {
@@ -198,9 +191,7 @@ export default function Audits() {
   };
 
   // Dynamic roles
-  const [availableAuditorRoles, setAvailableAuditorRoles] = useState(
-    loadDynamicAuditorRoles(),
-  );
+  const [availableAuditorRoles, setAvailableAuditorRoles] = useState(loadDynamicAuditorRoles());
 
   // Local state for UI
   const [searchQuery, setSearchQuery] = useState("");
@@ -302,10 +293,7 @@ export default function Audits() {
 
   // Calculate total assigned days for all team members
   const getTotalAssignedDays = () => {
-    return formData.teamMembers.reduce(
-      (total, member) => total + (member.assignedDays || 0),
-      0,
-    );
+    return formData.teamMembers.reduce((total, member) => total + (member.assignedDays || 0), 0);
   };
 
   // Calculate remaining available days
@@ -321,27 +309,22 @@ export default function Audits() {
     // Define role weights for proportional distribution
     const getRoleWeight = (role: string) => {
       const weights: Record<string, number> = {
-        auditor_lider: 1.0, // 100% participation
-        auditor_principal: 0.8, // 80% participation
-        auditor_junior: 0.6, // 60% participation
-        experto_tecnico: 0.5, // 50% participation
-        observador: 0.3, // 30% participation
+        auditor_lider: 1.0,      // 100% participation
+        auditor_principal: 0.8,   // 80% participation
+        auditor_junior: 0.6,      // 60% participation
+        experto_tecnico: 0.5,     // 50% participation
+        observador: 0.3,          // 30% participation
       };
       return weights[role] || 0.6;
     };
 
     // Calculate total weight
-    const totalWeight = newTeam.reduce(
-      (sum, member) => sum + getRoleWeight(member.role),
-      0,
-    );
+    const totalWeight = newTeam.reduce((sum, member) => sum + getRoleWeight(member.role), 0);
 
     // Distribute proportionally
-    return newTeam.map((member) => {
+    return newTeam.map(member => {
       const memberWeight = getRoleWeight(member.role);
-      const proportionalDays =
-        Math.round((memberWeight / totalWeight) * formData.workingDays * 10) /
-        10; // Round to 1 decimal
+      const proportionalDays = Math.round((memberWeight / totalWeight) * formData.workingDays * 10) / 10; // Round to 1 decimal
 
       return {
         ...member,
@@ -352,7 +335,7 @@ export default function Audits() {
 
   // Get suggested days for new member based on proportional distribution
   const getSuggestedDaysForRole = (role: string) => {
-    const roleConfig = availableAuditorRoles.find((r) => r.value === role);
+    const roleConfig = availableAuditorRoles.find(r => r.value === role);
     if (!roleConfig) return 1;
 
     // Create a temporary team with the new member to calculate proportional distribution
@@ -366,7 +349,7 @@ export default function Audits() {
 
     const tempTeam = [...formData.teamMembers, tempMember];
     const redistributed = redistributeTimeProportionally(tempTeam);
-    const newMemberData = redistributed.find((m) => m.userId === "temp");
+    const newMemberData = redistributed.find(m => m.userId === "temp");
 
     return newMemberData ? newMemberData.assignedDays : 1;
   };
@@ -376,28 +359,24 @@ export default function Audits() {
     if (formData.teamMembers.length === 0) return;
 
     const redistributed = redistributeTimeProportionally(formData.teamMembers);
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       teamMembers: redistributed,
     }));
 
     toast({
       title: "Tiempo redistribuido",
-      description:
-        "El tiempo se ha distribuido proporcionalmente entre los miembros del equipo",
+      description: "El tiempo se ha distribuido proporcionalmente entre los miembros del equipo",
     });
   };
 
   // Manual time adjustment with validation
   const adjustMemberTime = (userId: string, newDays: number) => {
-    const updatedMembers = formData.teamMembers.map((member) =>
-      member.userId === userId ? { ...member, assignedDays: newDays } : member,
+    const updatedMembers = formData.teamMembers.map(member =>
+      member.userId === userId ? { ...member, assignedDays: newDays } : member
     );
 
-    const totalAssigned = updatedMembers.reduce(
-      (sum, member) => sum + member.assignedDays,
-      0,
-    );
+    const totalAssigned = updatedMembers.reduce((sum, member) => sum + member.assignedDays, 0);
 
     if (totalAssigned > formData.workingDays) {
       toast({
@@ -408,7 +387,7 @@ export default function Audits() {
       return false;
     }
 
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       teamMembers: updatedMembers,
     }));
@@ -430,26 +409,22 @@ export default function Audits() {
     const config = {
       auditName: formData.name,
       workingDays: formData.workingDays,
-      teamMembers: formData.teamMembers.map((member) => ({
+      teamMembers: formData.teamMembers.map(member => ({
         role: member.role,
         assignedDays: member.assignedDays,
-        percentage: Math.round(
-          (member.assignedDays / formData.workingDays) * 100,
-        ),
+        percentage: Math.round((member.assignedDays / formData.workingDays) * 100),
       })),
       totalDays: getTotalAssignedDays(),
-      efficiency: Math.round(
-        (getTotalAssignedDays() / formData.workingDays) * 100,
-      ),
+      efficiency: Math.round((getTotalAssignedDays() / formData.workingDays) * 100),
     };
 
     // Create downloadable JSON
     const dataStr = JSON.stringify(config, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
-    link.download = `configuracion-tiempo-${formData.name.replace(/\s+/g, "-").toLowerCase()}.json`;
+    link.download = `configuracion-tiempo-${formData.name.replace(/\s+/g, '-').toLowerCase()}.json`;
     link.click();
     URL.revokeObjectURL(url);
 
@@ -470,13 +445,9 @@ export default function Audits() {
     };
 
     if (compliance.variance > 0) {
-      compliance.recommendations.push(
-        `Reducir ${compliance.variance.toFixed(1)} jornadas del equipo`,
-      );
+      compliance.recommendations.push(`Reducir ${compliance.variance.toFixed(1)} jornadas del equipo`);
     } else if (compliance.variance < 0) {
-      compliance.recommendations.push(
-        `Asignar ${Math.abs(compliance.variance).toFixed(1)} jornadas adicionales`,
-      );
+      compliance.recommendations.push(`Asignar ${Math.abs(compliance.variance).toFixed(1)} jornadas adicionales`);
     }
 
     // Check for team efficiency
@@ -484,13 +455,9 @@ export default function Audits() {
     const avgDaysPerMember = totalAssigned / teamSize;
 
     if (avgDaysPerMember < 1) {
-      compliance.recommendations.push(
-        "Considerar reducir el tamaño del equipo",
-      );
+      compliance.recommendations.push("Considerar reducir el tamaño del equipo");
     } else if (avgDaysPerMember > formData.workingDays * 0.8) {
-      compliance.recommendations.push(
-        "Considerar añadir más miembros al equipo",
-      );
+      compliance.recommendations.push("Considerar añadir más miembros al equipo");
     }
 
     return compliance;
@@ -509,15 +476,10 @@ export default function Audits() {
     setFormData(newFormData);
 
     // Auto-redistribute time if team exists and working days changed
-    if (
-      newFormData.workingDays !== formData.workingDays &&
-      formData.teamMembers.length > 0
-    ) {
+    if (newFormData.workingDays !== formData.workingDays && formData.teamMembers.length > 0) {
       setTimeout(() => {
-        const redistributed = redistributeTimeProportionally(
-          formData.teamMembers,
-        );
-        setFormData((prev) => ({
+        const redistributed = redistributeTimeProportionally(formData.teamMembers);
+        setFormData(prev => ({
           ...prev,
           teamMembers: redistributed,
           workingDays: newFormData.workingDays,
@@ -541,8 +503,7 @@ export default function Audits() {
     ) {
       toast({
         title: "Error",
-        description:
-          "Todos los campos del miembro del equipo son requeridos y las jornadas deben ser mayor a 0",
+        description: "Todos los campos del miembro del equipo son requeridos y las jornadas deben ser mayor a 0",
         variant: "destructive",
       });
       return;
@@ -749,7 +710,7 @@ export default function Audits() {
       console.error("Error al guardar auditoría:", error);
       toast({
         title: "Error",
-        description: `Hubo un error al guardar la auditoría: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        description: `Hubo un error al guardar la auditoría: ${error instanceof Error ? error.message : 'Error desconocido'}`,
         variant: "destructive",
       });
     } finally {
@@ -772,7 +733,7 @@ export default function Audits() {
       console.error("Error deleting audit:", error);
       toast({
         title: "Error",
-        description: `Hubo un error al eliminar la auditoría: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        description: `Hubo un error al eliminar la auditoría: ${error instanceof Error ? error.message : 'Error desconocido'}`,
         variant: "destructive",
       });
     } finally {
@@ -838,16 +799,27 @@ export default function Audits() {
             </div>
           </div>
 
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="w-4 h-4 mr-2" />
-                Nueva Auditoría
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Actualizar
+            </Button>
+
+            <Dialog
+              open={isCreateDialogOpen}
+              onOpenChange={setIsCreateDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button onClick={resetForm}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nueva Auditoría
+                </Button>
+              </DialogTrigger>
 
             {/* Create/Edit Dialog Content */}
             <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -856,9 +828,7 @@ export default function Audits() {
                   {editingAudit ? "Editar" : "Crear"} Auditoría
                 </DialogTitle>
                 <DialogDescription>
-                  {editingAudit
-                    ? "Modifica los datos"
-                    : "Completa la información"}{" "}
+                  {editingAudit ? "Modifica los datos" : "Completa la información"}{" "}
                   de la auditoría
                 </DialogDescription>
               </DialogHeader>
@@ -920,10 +890,7 @@ export default function Audits() {
                         </SelectTrigger>
                         <SelectContent>
                           {getISOStandardOptions().map((standard) => (
-                            <SelectItem
-                              key={standard.value}
-                              value={standard.value}
-                            >
+                            <SelectItem key={standard.value} value={standard.value}>
                               <div>
                                 <div>{standard.label}</div>
                                 <div className="text-xs text-muted-foreground">
@@ -950,10 +917,7 @@ export default function Audits() {
                       </SelectTrigger>
                       <SelectContent>
                         {getAuditModalityOptions().map((modality) => (
-                          <SelectItem
-                            key={modality.value}
-                            value={modality.value}
-                          >
+                          <SelectItem key={modality.value} value={modality.value}>
                             <div className="flex items-center gap-2">
                               {getModalityIcon(modality.value)}
                               <div>
@@ -1045,8 +1009,7 @@ export default function Audits() {
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-blue-600" />
                               <span className="text-sm text-blue-700">
-                                {getRemainingDays()} jornadas disponibles de{" "}
-                                {formData.workingDays}
+                                {getRemainingDays()} jornadas disponibles de {formData.workingDays}
                               </span>
                             </div>
                           </div>
@@ -1059,8 +1022,7 @@ export default function Audits() {
                             />
                           </div>
                           <div className="text-xs text-blue-600 mt-1">
-                            {getTotalAssignedDays()} de {formData.workingDays}{" "}
-                            jornadas asignadas
+                            {getTotalAssignedDays()} de {formData.workingDays} jornadas asignadas
                           </div>
                         </div>
 
@@ -1113,8 +1075,7 @@ export default function Audits() {
                                 const role = availableAuditorRoles.find(
                                   (r) => r.value === value,
                                 );
-                                const suggestedDays =
-                                  getSuggestedDaysForRole(value);
+                                const suggestedDays = getSuggestedDaysForRole(value);
                                 setTeamMemberForm({
                                   ...teamMemberForm,
                                   role: value,
@@ -1128,10 +1089,7 @@ export default function Audits() {
                               </SelectTrigger>
                               <SelectContent>
                                 {availableAuditorRoles.map((role) => (
-                                  <SelectItem
-                                    key={role.value}
-                                    value={role.value}
-                                  >
+                                  <SelectItem key={role.value} value={role.value}>
                                     <div>
                                       <div className="flex items-center gap-2">
                                         {role.isLeader && (
@@ -1154,9 +1112,7 @@ export default function Audits() {
                               Jornadas Asignadas *
                               {teamMemberForm.role && (
                                 <span className="text-xs text-muted-foreground ml-1">
-                                  (Sugerido:{" "}
-                                  {getSuggestedDaysForRole(teamMemberForm.role)}
-                                  )
+                                  (Sugerido: {getSuggestedDaysForRole(teamMemberForm.role)})
                                 </span>
                               )}
                             </Label>
@@ -1164,9 +1120,7 @@ export default function Audits() {
                               id="assigned-days"
                               type="number"
                               min="0"
-                              max={
-                                getRemainingDays() + teamMemberForm.assignedDays
-                              }
+                              max={getRemainingDays() + teamMemberForm.assignedDays}
                               value={teamMemberForm.assignedDays}
                               onChange={(e) =>
                                 setTeamMemberForm({
@@ -1180,11 +1134,9 @@ export default function Audits() {
                                   : ""
                               }
                             />
-                            {teamMemberForm.assignedDays >
-                              getRemainingDays() && (
+                            {teamMemberForm.assignedDays > getRemainingDays() && (
                               <p className="text-xs text-red-600">
-                                Excede las jornadas disponibles (
-                                {getRemainingDays()})
+                                Excede las jornadas disponibles ({getRemainingDays()})
                               </p>
                             )}
                           </div>
@@ -1238,8 +1190,7 @@ export default function Audits() {
                           Miembros del Equipo ({formData.teamMembers.length})
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          Total: {getTotalAssignedDays()}/{formData.workingDays}{" "}
-                          jornadas
+                          Total: {getTotalAssignedDays()}/{formData.workingDays} jornadas
                         </span>
                       </div>
 
@@ -1255,14 +1206,10 @@ export default function Audits() {
                                 {member.isLeader && (
                                   <Shield className="w-4 h-4 text-primary" />
                                 )}
-                                <span className="font-medium">
-                                  {member.name}
-                                </span>
+                                <span className="font-medium">{member.name}</span>
                               </div>
                               <Badge
-                                variant={
-                                  member.isLeader ? "default" : "secondary"
-                                }
+                                variant={member.isLeader ? "default" : "secondary"}
                               >
                                 {
                                   availableAuditorRoles.find(
@@ -1284,15 +1231,9 @@ export default function Audits() {
                           {/* Time Assignment Controls */}
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <Label className="text-sm">
-                                Jornadas Asignadas
-                              </Label>
+                              <Label className="text-sm">Jornadas Asignadas</Label>
                               <div className="text-xs text-muted-foreground">
-                                {Math.round(
-                                  (member.assignedDays / formData.workingDays) *
-                                    100,
-                                )}
-                                % del tiempo total
+                                {Math.round((member.assignedDays / formData.workingDays) * 100)}% del tiempo total
                               </div>
                             </div>
 
@@ -1304,8 +1245,7 @@ export default function Audits() {
                                 step="0.5"
                                 value={member.assignedDays}
                                 onChange={(e) => {
-                                  const newDays =
-                                    parseFloat(e.target.value) || 0;
+                                  const newDays = parseFloat(e.target.value) || 0;
                                   adjustMemberTime(member.userId, newDays);
                                 }}
                                 className="w-20 h-8"
@@ -1331,9 +1271,7 @@ export default function Audits() {
                       {/* Time Management Controls */}
                       <div className="space-y-4 pt-4 border-t">
                         <div className="flex items-center justify-between">
-                          <h5 className="font-medium text-sm">
-                            Gestión de Tiempo
-                          </h5>
+                          <h5 className="font-medium text-sm">Gestión de Tiempo</h5>
                           <div className="flex gap-2">
                             <Button
                               type="button"
@@ -1362,35 +1300,25 @@ export default function Audits() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span>Asignación Total de Tiempo</span>
-                            <span
-                              className={`font-medium ${
-                                getTotalAssignedDays() > formData.workingDays
-                                  ? "text-red-600"
-                                  : getTotalAssignedDays() ===
-                                      formData.workingDays
-                                    ? "text-green-600"
-                                    : "text-blue-600"
-                              }`}
-                            >
-                              {getTotalAssignedDays().toFixed(1)}/
-                              {formData.workingDays} días (
-                              {Math.round(
-                                (getTotalAssignedDays() /
-                                  formData.workingDays) *
-                                  100,
-                              )}
-                              %)
+                            <span className={`font-medium ${
+                              getTotalAssignedDays() > formData.workingDays
+                                ? 'text-red-600'
+                                : getTotalAssignedDays() === formData.workingDays
+                                ? 'text-green-600'
+                                : 'text-blue-600'
+                            }`}>
+                              {getTotalAssignedDays().toFixed(1)}/{formData.workingDays} días
+                              ({Math.round((getTotalAssignedDays() / formData.workingDays) * 100)}%)
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3">
                             <div
                               className={`h-3 rounded-full transition-all duration-300 ${
                                 getTotalAssignedDays() > formData.workingDays
-                                  ? "bg-red-500"
-                                  : getTotalAssignedDays() ===
-                                      formData.workingDays
-                                    ? "bg-green-500"
-                                    : "bg-blue-500"
+                                  ? 'bg-red-500'
+                                  : getTotalAssignedDays() === formData.workingDays
+                                  ? 'bg-green-500'
+                                  : 'bg-blue-500'
                               }`}
                               style={{
                                 width: `${Math.min((getTotalAssignedDays() / formData.workingDays) * 100, 100)}%`,
@@ -1403,11 +1331,7 @@ export default function Audits() {
                             <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded text-red-700">
                               <AlertTriangle className="w-4 h-4" />
                               <span className="text-sm">
-                                ⚠️ Tiempo sobreasignado:{" "}
-                                {(
-                                  getTotalAssignedDays() - formData.workingDays
-                                ).toFixed(1)}{" "}
-                                jornadas extra
+                                ⚠️ Tiempo sobreasignado: {(getTotalAssignedDays() - formData.workingDays).toFixed(1)} jornadas extra
                               </span>
                             </div>
                           )}
@@ -1421,19 +1345,14 @@ export default function Audits() {
                             </div>
                           )}
 
-                          {getTotalAssignedDays() < formData.workingDays &&
-                            getTotalAssignedDays() > 0 && (
-                              <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700">
-                                <Clock className="w-4 h-4" />
-                                <span className="text-sm">
-                                  {(
-                                    formData.workingDays -
-                                    getTotalAssignedDays()
-                                  ).toFixed(1)}{" "}
-                                  jornadas disponibles para asignar
-                                </span>
-                              </div>
-                            )}
+                          {getTotalAssignedDays() < formData.workingDays && getTotalAssignedDays() > 0 && (
+                            <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700">
+                              <Clock className="w-4 h-4" />
+                              <span className="text-sm">
+                                {(formData.workingDays - getTotalAssignedDays()).toFixed(1)} jornadas disponibles para asignar
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1446,8 +1365,7 @@ export default function Audits() {
                         <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <AlertTriangle className="w-4 h-4 text-yellow-600" />
                           <span className="text-sm text-yellow-800">
-                            El equipo auditor debe tener al menos un auditor
-                            líder
+                            El equipo auditor debe tener al menos un auditor líder
                           </span>
                         </div>
                       )}
@@ -1456,23 +1374,19 @@ export default function Audits() {
                         <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                           <AlertTriangle className="w-4 h-4 text-red-600" />
                           <span className="text-sm text-red-800">
-                            El tiempo asignado ({getTotalAssignedDays()}{" "}
-                            jornadas) excede la duración de la auditoría (
-                            {formData.workingDays} jornadas)
+                            El tiempo asignado ({getTotalAssignedDays()} jornadas) excede la duración de la auditoría ({formData.workingDays} jornadas)
                           </span>
                         </div>
                       )}
 
-                      {getTotalAssignedDays() < formData.workingDays &&
-                        formData.teamMembers.length > 0 && (
-                          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <Clock className="w-4 h-4 text-blue-600" />
-                            <span className="text-sm text-blue-800">
-                              Quedan {getRemainingDays()} jornadas sin asignar.
-                              Considera optimizar la distribución del tiempo.
-                            </span>
-                          </div>
-                        )}
+                      {getTotalAssignedDays() < formData.workingDays && formData.teamMembers.length > 0 && (
+                        <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <Clock className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm text-blue-800">
+                            Quedan {getRemainingDays()} jornadas sin asignar. Considera optimizar la distribución del tiempo.
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1839,6 +1753,8 @@ export default function Audits() {
             </div>
           </CardContent>
         </Card>
+
+
 
         {/* Delete Dialog */}
         <AlertDialog
