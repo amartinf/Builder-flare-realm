@@ -166,6 +166,15 @@ export default function Configuration() {
   const [userRoles, setUserRoles] = useState<UserRole[]>(
     initialConfig.userRoles,
   );
+  const [auditModalities, setAuditModalities] = useState<AuditModality[]>(
+    initialConfig.auditModalities,
+  );
+  const [isoStandards, setISOStandards] = useState<ISOStandard[]>(
+    initialConfig.isoStandards,
+  );
+  const [auditorRoles, setAuditorRoles] = useState<AuditorRole[]>(
+    initialConfig.auditorRoles,
+  );
 
   const [hasChanges, setHasChanges] = useState(false);
 
