@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 
-export type UserRole = "admin" | "auditor" | "client";
+export type UserRole = "admin" | "auditor" | "client" | "secretary";
 
 export interface User {
   id: string;
