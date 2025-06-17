@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAudits, useNonConformities } from "@/hooks/useFileMaker";
 import { useAuth } from "@/context/AuthContext";
 import { Layout } from "@/components/Layout";
+import FileMakerStatus from "@/components/FileMakerStatus";
 import {
   Shield,
   Users,
@@ -345,80 +346,70 @@ export default function AdminPortal() {
           </Card>
 
           {/* System Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estado del Sistema</CardTitle>
-              <CardDescription>Monitoreo de salud del sistema</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Base de Datos</span>
-                  <Badge className="bg-green-100 text-green-800">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Operativo
-                  </Badge>
-                </div>
+          <div className="space-y-4">
+            <FileMakerStatus />
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Servidor Web</span>
-                  <Badge className="bg-green-100 text-green-800">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Operativo
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">FileMaker API</span>
-                  <Badge className="bg-yellow-100 text-yellow-800">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                    Demo Mode
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Email Service</span>
-                  <Badge className="bg-green-100 text-green-800">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Operativo
-                  </Badge>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <div className="text-sm font-medium mb-2">
-                    Uso de Recursos
+            <Card>
+              <CardHeader>
+                <CardTitle>Estado del Sistema</CardTitle>
+                <CardDescription>
+                  Monitoreo de salud del sistema
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Servidor Web</span>
+                    <Badge className="bg-green-100 text-green-800">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Operativo
+                    </Badge>
                   </div>
-                  <div className="space-y-2">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>CPU</span>
-                        <span>23%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: "23%" }}
-                        ></div>
-                      </div>
-                    </div>
 
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Memoria</span>
-                        <span>67%</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Email Service</span>
+                    <Badge className="bg-green-100 text-green-800">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Operativo
+                    </Badge>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <div className="text-sm font-medium mb-2">
+                      Uso de Recursos
+                    </div>
+                    <div className="space-y-2">
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>CPU</span>
+                          <span>23%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{ width: "23%" }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-600 h-2 rounded-full"
-                          style={{ width: "67%" }}
-                        ></div>
+
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>Memoria</span>
+                          <span>67%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-600 h-2 rounded-full"
+                            style={{ width: "67%" }}
+                          ></div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </Layout>
