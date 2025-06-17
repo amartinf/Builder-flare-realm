@@ -62,11 +62,17 @@ import {
   getNCCategoryOptions,
   getNCSeverityOptions,
   getNCStatusOptions,
+  getAuditModalityOptions,
+  getISOStandardOptions,
+  getAuditorRoleOptions,
   type AuditType,
   type AuditStatus,
   type AuditCategory,
   type NonConformitySeverity,
   type NonConformityStatus,
+  type AuditModality,
+  type ISOStandard,
+  type AuditorRole,
 } from "@/config/auditOptions";
 import {
   USER_ROLES,
