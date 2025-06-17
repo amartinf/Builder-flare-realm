@@ -17,6 +17,7 @@ export interface AuditTeamMember {
   name: string;
   role: string;
   isLeader: boolean;
+  assignedDays: number;
 }
 
 export interface Audit {
