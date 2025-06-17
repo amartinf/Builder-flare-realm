@@ -416,10 +416,26 @@ export default function Users() {
             </div>
           </div>
 
-          <Button onClick={() => openEditDialog(undefined, true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Usuario
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const newRoles = loadDynamicRoles();
+                setAvailableRoles(newRoles);
+                toast({
+                  title: "Roles actualizados",
+                  description: `Se cargaron ${newRoles.length} roles desde la configuración`,
+                });
+              }}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Recargar Roles
+            </Button>
+            <Button onClick={() => openEditDialog(undefined, true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Usuario
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
