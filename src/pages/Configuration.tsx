@@ -1114,6 +1114,101 @@ export default function Configuration() {
                 </div>
               )}
 
+              {editDialog.type === "userRole" && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Permisos del Rol</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Selecciona los permisos que tendrá este rol en el sistema
+                    </p>
+                    <div className="max-h-60 overflow-y-auto border rounded-lg p-2">
+                      {Object.entries(
+                        availablePermissions.reduce(
+                          (acc, permission) => {
+                            if (!acc[permission.category]) {
+                              acc[permission.category] = [];
+                            }
+                            acc[permission.category].push(permission);
+                            return acc;
+                          },
+                          {} as Record<string, typeof availablePermissions>,
+                        ),
+                      ).map(([category, permissions]) => (
+                        <div key={category} className="mb-4">
+                          <div className="font-medium text-sm mb-2 text-primary">
+                            {category}
+                          </div>
+                          <div className="space-y-2">
+                            {permissions.map((permission) => (
+                              <div
+                                key={permission.value}
+                                className="flex items-center space-x-2"
+                              >
+                                <input
+                                  type="checkbox"
+                                  id={permission.value}
+                                  checked={formData.permissions.includes(
+                                    permission.value,
+                                  )}
+                                  onChange={(e) => {
+                                    const newPermissions = e.target.checked
+                                      ? [
+                                          ...formData.permissions,
+                                          permission.value,
+                                        ]
+                                      : formData.permissions.filter(
+                                          (p) => p !== permission.value,
+                                        );
+                                    setFormData({
+                                      ...formData,
+                                      permissions: newPermissions,
+                                    });
+                                  }}
+                                  className="rounded border-gray-300"
+                                />
+                                <Label
+                                  htmlFor={permission.value}
+                                  className="text-sm font-normal cursor-pointer"
+                                >
+                                  {permission.label}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            permissions: availablePermissions.map(
+                              (p) => p.value,
+                            ),
+                          });
+                        }}
+                      >
+                        Seleccionar Todos
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setFormData({ ...formData, permissions: [] });
+                        }}
+                      >
+                        Deseleccionar Todos
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="description">Descripción</Label>
                 <Textarea
