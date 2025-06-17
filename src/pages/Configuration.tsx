@@ -859,6 +859,30 @@ export default function Configuration() {
             />
           </TabsContent>
 
+          {/* Audit Configuration Tab */}
+          <TabsContent value="audit-config" className="space-y-6">
+            <ConfigurationSection
+              title="Modalidades de Auditoría"
+              description="Define las modalidades disponibles para realizar auditorías"
+              items={getAuditModalityOptions()}
+              type="auditModality"
+            />
+
+            <ConfigurationSection
+              title="Normas ISO"
+              description="Define las normas ISO disponibles para auditar"
+              items={getISOStandardOptions()}
+              type="isoStandard"
+            />
+
+            <ConfigurationSection
+              title="Roles del Equipo Auditor"
+              description="Define los roles disponibles para los miembros del equipo auditor"
+              items={getAuditorRoleOptions()}
+              type="auditorRole"
+            />
+          </TabsContent>
+
           {/* Non-Conformities Tab */}
           <TabsContent value="nonconformities" className="space-y-6">
             <ConfigurationSection
