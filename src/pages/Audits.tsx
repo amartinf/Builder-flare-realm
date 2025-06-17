@@ -88,6 +88,7 @@ import {
   X,
   CheckCircle,
   Download,
+  RefreshCw,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Progress } from "@/components/ui/progress";
@@ -167,8 +168,34 @@ export default function Audits() {
   };
 
   // FileMaker integration
-  const { audits, loading, error, createAudit, updateAudit, deleteAudit } =
-    useAudits();
+  const {
+    audits,
+    loading,
+    error,
+    fetchAudits,
+    createAudit,
+    updateAudit,
+    deleteAudit,
+  } = useAudits();
+
+  // Manual refresh function
+  const handleRefresh = async () => {
+    console.log("Manual refresh triggered");
+    try {
+      await fetchAudits();
+      toast({
+        title: "Datos actualizados",
+        description: "La lista de auditorías se ha actualizado correctamente",
+      });
+    } catch (refreshError) {
+      console.error("Error refreshing data:", refreshError);
+      toast({
+        title: "Error al actualizar",
+        description: "No se pudieron cargar los datos actualizados",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Dynamic roles
   const [availableAuditorRoles, setAvailableAuditorRoles] = useState(
@@ -684,30 +711,39 @@ export default function Audits() {
 
       if (editingAudit) {
         console.log("Actualizando auditoría:", editingAudit.id, auditData);
-        const updatedAudit = await updateAudit(editingAudit.id, auditData);
-        console.log("Auditoría actualizada exitosamente:", updatedAudit);
+        try {
+          const updatedAudit = await updateAudit(editingAudit.id, auditData);
+          console.log("Auditoría actualizada exitosamente:", updatedAudit);
 
-        toast({
-          title: "Auditoría actualizada",
-          description: "La auditoría ha sido actualizada exitosamente",
-        });
+          toast({
+            title: "Auditoría actualizada",
+            description: "La auditoría ha sido actualizada exitosamente",
+          });
 
-        // Small delay to ensure state updates properly
-        setTimeout(() => {
+          // Close dialog and reset form
           setIsCreateDialogOpen(false);
           resetForm();
-        }, 100);
+          setEditingAudit(null);
+        } catch (updateError) {
+          console.error("Error updating audit:", updateError);
+          throw updateError;
+        }
       } else {
-        const newAudit = await createAudit(auditData);
-        console.log("Auditoría creada exitosamente:", newAudit);
+        try {
+          const newAudit = await createAudit(auditData);
+          console.log("Auditoría creada exitosamente:", newAudit);
 
-        toast({
-          title: "Auditoría creada",
-          description: "La auditoría ha sido creada exitosamente",
-        });
+          toast({
+            title: "Auditoría creada",
+            description: "La auditoría ha sido creada exitosamente",
+          });
 
-        setIsCreateDialogOpen(false);
-        resetForm();
+          setIsCreateDialogOpen(false);
+          resetForm();
+        } catch (createError) {
+          console.error("Error creating audit:", createError);
+          throw createError;
+        }
       }
     } catch (error) {
       console.error("Error al guardar auditoría:", error);
@@ -723,21 +759,25 @@ export default function Audits() {
 
   // Handle delete
   const handleDelete = async (auditId: number) => {
+    console.log("handleDelete called for audit:", auditId);
     try {
       await deleteAudit(auditId);
+      console.log("Audit deleted successfully");
       toast({
         title: "Auditoría eliminada",
         description: "La auditoría ha sido eliminada exitosamente",
         variant: "destructive",
       });
     } catch (error) {
+      console.error("Error deleting audit:", error);
       toast({
         title: "Error",
-        description: "Hubo un error al eliminar la auditoría",
+        description: `Hubo un error al eliminar la auditoría: ${error instanceof Error ? error.message : "Error desconocido"}`,
         variant: "destructive",
       });
+    } finally {
+      setDeleteAuditId(null);
     }
-    setDeleteAuditId(null);
   };
 
   // Handle duplicate
