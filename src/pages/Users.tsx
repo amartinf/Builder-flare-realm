@@ -728,7 +728,7 @@ export default function Users() {
                       <SelectValue placeholder="Seleccionar rol" />
                     </SelectTrigger>
                     <SelectContent>
-                      {USER_ROLES.map((role) => (
+                      {availableRoles.map((role) => (
                         <SelectItem key={role.value} value={role.value}>
                           <div className="flex items-center space-x-2">
                             <Shield className="w-4 h-4" />
