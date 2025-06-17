@@ -119,6 +119,9 @@ export default function Configuration() {
           ncSeverities: config.ncSeverities || getNCSeverityOptions(),
           ncStatuses: config.ncStatuses || getNCStatusOptions(),
           userRoles: config.userRoles || USER_ROLES,
+          auditModalities: config.auditModalities || getAuditModalityOptions(),
+          isoStandards: config.isoStandards || getISOStandardOptions(),
+          auditorRoles: config.auditorRoles || getAuditorRoleOptions(),
         };
       }
     } catch (error) {
