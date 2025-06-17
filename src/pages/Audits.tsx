@@ -494,7 +494,9 @@ export default function Audits() {
       };
 
       if (editingAudit) {
+        console.log("Actualizando auditoría:", editingAudit.id, auditData);
         await updateAudit(editingAudit.id, auditData);
+        console.log("Auditoría actualizada exitosamente");
         toast({
           title: "Auditoría actualizada",
           description: "La auditoría ha sido actualizada exitosamente",
