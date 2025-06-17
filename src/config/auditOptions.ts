@@ -465,6 +465,9 @@ export const getEvidenceCategoryOptions = () => EVIDENCE_CATEGORIES;
 export const getNCCategoryOptions = () => NC_CATEGORIES;
 export const getNCSeverityOptions = () => NC_SEVERITIES;
 export const getNCStatusOptions = () => NC_STATUSES;
+export const getAuditModalityOptions = () => AUDIT_MODALITIES;
+export const getISOStandardOptions = () => ISO_STANDARDS;
+export const getAuditorRoleOptions = () => AUDITOR_ROLES;
 
 // Funciones para obtener configuración específica
 export const getAuditType = (value: string) =>
