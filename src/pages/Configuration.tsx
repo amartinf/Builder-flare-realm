@@ -221,6 +221,7 @@ export default function Configuration() {
         description: item.description || "",
         badge: item.badge || "default",
         priority: item.priority || 1,
+        permissions: item.permissions || [],
       });
     }
 
