@@ -25,14 +25,15 @@ import {
   LogOut,
   ChevronDown,
   Calendar,
+  Home,
 } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, currentRole, logout, switchRole } = useAuth();
 
-  // Define navigation items based on user role
-  const getNavigationItems = (role: UserRole | null) => {
+  // Define core navigation items (always visible)
+  const getCoreNavigationItems = (role: UserRole | null) => {
     if (!role) return [];
 
     const baseItems = [
@@ -41,32 +42,17 @@ export default function Navbar() {
 
     const roleItems = {
       admin: [
-        { href: "/admin-portal", icon: Shield, label: "Portal Admin" },
         { href: "/audits", icon: FileText, label: "Auditorías" },
         {
           href: "/non-conformities",
           icon: AlertTriangle,
           label: "No Conformidades",
         },
-        {
-          href: "/corrective-actions",
-          icon: Upload,
-          label: "Acciones Correctivas",
-        },
         { href: "/users", icon: Users, label: "Usuarios" },
         { href: "/configuration", icon: Settings, label: "Configuración" },
         { href: "/reports", icon: BarChart3, label: "Reportes" },
-        { href: "/client-portal", icon: Building, label: "Portal Cliente" },
-        { href: "/auditor-portal", icon: User, label: "Portal Auditor" },
-        {
-          href: "/secretary-portal",
-          icon: Calendar,
-          label: "Portal Secretaría",
-        },
-        { href: "/diagnostics", icon: HelpCircle, label: "Diagnósticos" },
       ],
       auditor: [
-        { href: "/auditor-portal", icon: User, label: "Portal Auditor" },
         { href: "/audits", icon: FileText, label: "Auditorías" },
         {
           href: "/non-conformities",
@@ -81,17 +67,11 @@ export default function Navbar() {
         { href: "/reports", icon: BarChart3, label: "Reportes" },
       ],
       secretary: [
-        {
-          href: "/secretary-portal",
-          icon: Calendar,
-          label: "Portal Secretaría",
-        },
         { href: "/audits", icon: FileText, label: "Gestión de Auditorías" },
         { href: "/users", icon: Users, label: "Gestión de Equipos" },
         { href: "/reports", icon: BarChart3, label: "Reportes" },
       ],
       client: [
-        { href: "/client-portal", icon: Building, label: "Portal Cliente" },
         { href: "/corrective-actions", icon: Upload, label: "Mis Acciones" },
       ],
     };
@@ -99,7 +79,45 @@ export default function Navbar() {
     return [...baseItems, ...(roleItems[role] || [])];
   };
 
-  const navigationItems = getNavigationItems(currentRole);
+  // Define portal items for dropdown
+  const getPortalItems = (role: UserRole | null) => {
+    if (!role) return [];
+
+    const allPortals = [
+      {
+        href: "/admin-portal",
+        icon: Shield,
+        label: "Portal Admin",
+        roles: ["admin"],
+      },
+      {
+        href: "/auditor-portal",
+        icon: User,
+        label: "Portal Auditor",
+        roles: ["admin", "auditor"],
+      },
+      {
+        href: "/secretary-portal",
+        icon: Calendar,
+        label: "Portal Secretaría",
+        roles: ["admin", "secretary"],
+      },
+      {
+        href: "/client-portal",
+        icon: Building,
+        label: "Portal Cliente",
+        roles: ["admin", "client"],
+      },
+    ];
+
+    // Filter portals based on user role or admin access
+    return allPortals.filter(
+      (portal) => role === "admin" || portal.roles.includes(role),
+    );
+  };
+
+  const coreNavigationItems = getCoreNavigationItems(currentRole);
+  const portalItems = getPortalItems(currentRole);
 
   const getRoleConfig = (role: UserRole) => {
     const configs = {
@@ -129,8 +147,47 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            {navigationItems.map((item) => (
+          <nav className="hidden lg:flex items-center space-x-1">
+            {/* Portals Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center space-x-2">
+                  <Home className="w-4 h-4" />
+                  <span>Portales</span>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {portalItems.map((portal) => (
+                  <DropdownMenuItem key={portal.href} asChild>
+                    <a
+                      href={portal.href}
+                      className="flex items-center space-x-2 w-full"
+                    >
+                      <portal.icon className="w-4 h-4" />
+                      <span>{portal.label}</span>
+                    </a>
+                  </DropdownMenuItem>
+                ))}
+                {user?.role === "admin" && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <a
+                        href="/diagnostics"
+                        className="flex items-center space-x-2 w-full"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                        <span>Diagnósticos</span>
+                      </a>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Core Navigation Items */}
+            {coreNavigationItems.map((item) => (
               <Button
                 key={item.href}
                 variant="ghost"
@@ -230,7 +287,7 @@ export default function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? (
@@ -244,7 +301,7 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden mt-4 space-y-2 pb-4">
+          <div className="lg:hidden mt-4 space-y-2 pb-4">
             {user && currentRole && (
               <div className="pb-4 border-b">
                 <div className="px-2 py-2">
@@ -257,20 +314,59 @@ export default function Navbar() {
               </div>
             )}
 
-            {navigationItems.map((item) => (
-              <Button
-                key={item.href}
-                variant="ghost"
-                className="w-full justify-start flex items-center space-x-2"
-                asChild
-              >
-                <a href={item.href}>
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </a>
-              </Button>
-            ))}
+            {/* Mobile Portals Section */}
+            <div className="pb-2 border-b">
+              <p className="px-2 text-xs font-medium text-muted-foreground mb-2">
+                PORTALES
+              </p>
+              {portalItems.map((portal) => (
+                <Button
+                  key={portal.href}
+                  variant="ghost"
+                  className="w-full justify-start flex items-center space-x-2"
+                  asChild
+                >
+                  <a href={portal.href}>
+                    <portal.icon className="w-4 h-4" />
+                    <span>{portal.label}</span>
+                  </a>
+                </Button>
+              ))}
+              {user?.role === "admin" && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start flex items-center space-x-2"
+                  asChild
+                >
+                  <a href="/diagnostics">
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Diagnósticos</span>
+                  </a>
+                </Button>
+              )}
+            </div>
 
+            {/* Mobile Core Navigation */}
+            <div className="pb-2">
+              <p className="px-2 text-xs font-medium text-muted-foreground mb-2">
+                NAVEGACIÓN
+              </p>
+              {coreNavigationItems.map((item) => (
+                <Button
+                  key={item.href}
+                  variant="ghost"
+                  className="w-full justify-start flex items-center space-x-2"
+                  asChild
+                >
+                  <a href={item.href}>
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </a>
+                </Button>
+              ))}
+            </div>
+
+            {/* Mobile User Actions */}
             {user && (
               <div className="pt-4 border-t space-y-2">
                 {user.role === "admin" && (
