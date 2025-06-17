@@ -325,6 +325,9 @@ export default function Configuration() {
         case "ncStatus":
           setNCStatuses([...ncStatuses, newItem as NonConformityStatus]);
           break;
+        case "userRole":
+          setUserRoles([...userRoles, newItem as UserRole]);
+          break;
       }
     } else {
       // Actualizar elemento existente
