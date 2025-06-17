@@ -1184,40 +1184,100 @@ export default function Audits() {
                         </div>
                       ))}
 
-                      {/* Time allocation progress bar */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Asignación de Tiempo</span>
-                          <span>
-                            {Math.round(
-                              (getTotalAssignedDays() / formData.workingDays) *
-                                100,
+                      {/* Time Management Controls */}
+                      <div className="space-y-4 pt-4 border-t">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-sm">
+                            Gestión de Tiempo
+                          </h5>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={autoRedistributeTime}
+                          >
+                            <Clock className="w-4 h-4 mr-2" />
+                            Redistribuir Automáticamente
+                          </Button>
+                        </div>
+
+                        {/* Overall Progress */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>Asignación Total de Tiempo</span>
+                            <span
+                              className={`font-medium ${
+                                getTotalAssignedDays() > formData.workingDays
+                                  ? "text-red-600"
+                                  : getTotalAssignedDays() ===
+                                      formData.workingDays
+                                    ? "text-green-600"
+                                    : "text-blue-600"
+                              }`}
+                            >
+                              {getTotalAssignedDays().toFixed(1)}/
+                              {formData.workingDays} días (
+                              {Math.round(
+                                (getTotalAssignedDays() /
+                                  formData.workingDays) *
+                                  100,
+                              )}
+                              %)
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div
+                              className={`h-3 rounded-full transition-all duration-300 ${
+                                getTotalAssignedDays() > formData.workingDays
+                                  ? "bg-red-500"
+                                  : getTotalAssignedDays() ===
+                                      formData.workingDays
+                                    ? "bg-green-500"
+                                    : "bg-blue-500"
+                              }`}
+                              style={{
+                                width: `${Math.min((getTotalAssignedDays() / formData.workingDays) * 100, 100)}%`,
+                              }}
+                            />
+                          </div>
+
+                          {/* Status Messages */}
+                          {getTotalAssignedDays() > formData.workingDays && (
+                            <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded text-red-700">
+                              <AlertTriangle className="w-4 h-4" />
+                              <span className="text-sm">
+                                ⚠️ Tiempo sobreasignado:{" "}
+                                {(
+                                  getTotalAssignedDays() - formData.workingDays
+                                ).toFixed(1)}{" "}
+                                jornadas extra
+                              </span>
+                            </div>
+                          )}
+
+                          {getTotalAssignedDays() === formData.workingDays && (
+                            <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded text-green-700">
+                              <CheckCircle className="w-4 h-4" />
+                              <span className="text-sm">
+                                ✓ Tiempo perfectamente distribuido
+                              </span>
+                            </div>
+                          )}
+
+                          {getTotalAssignedDays() < formData.workingDays &&
+                            getTotalAssignedDays() > 0 && (
+                              <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700">
+                                <Clock className="w-4 h-4" />
+                                <span className="text-sm">
+                                  {(
+                                    formData.workingDays -
+                                    getTotalAssignedDays()
+                                  ).toFixed(1)}{" "}
+                                  jornadas disponibles para asignar
+                                </span>
+                              </div>
                             )}
-                            %
-                          </span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              getTotalAssignedDays() > formData.workingDays
-                                ? "bg-red-500"
-                                : getTotalAssignedDays() ===
-                                    formData.workingDays
-                                  ? "bg-green-500"
-                                  : "bg-blue-500"
-                            }`}
-                            style={{
-                              width: `${Math.min((getTotalAssignedDays() / formData.workingDays) * 100, 100)}%`,
-                            }}
-                          />
-                        </div>
-                        {getTotalAssignedDays() > formData.workingDays && (
-                          <p className="text-xs text-red-600">
-                            ⚠️ Tiempo sobreasignado:{" "}
-                            {getTotalAssignedDays() - formData.workingDays}{" "}
-                            jornadas extra
-                          </p>
-                        )}
                       </div>
                     </div>
                   )}
