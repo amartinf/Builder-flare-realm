@@ -12,14 +12,27 @@ import {
 import { MockFileMakerAPI } from "../services/mockData";
 
 // Types for our application data models
+export interface AuditTeamMember {
+  userId: string;
+  name: string;
+  role: string;
+  isLeader: boolean;
+}
+
 export interface Audit {
   id: number;
   name: string;
   type: string;
   status: string;
   progress: number;
+  startDate: string;
+  endDate: string;
   dueDate: string;
+  workingDays: number;
   auditor: string;
+  teamMembers: AuditTeamMember[];
+  modality: string;
+  isoStandard: string;
   nonConformities: number;
   evidences: number;
   createdDate: string;
