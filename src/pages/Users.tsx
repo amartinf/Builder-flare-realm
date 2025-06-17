@@ -812,7 +812,7 @@ export default function Users() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {
-                        USER_ROLES.find((r) => r.value === formData.role)
+                        availableRoles.find((r) => r.value === formData.role)
                           ?.description
                       }
                     </div>
