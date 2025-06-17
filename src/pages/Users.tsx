@@ -173,6 +173,8 @@ export default function Users() {
 
   const [users, setUsers] = useState<User[]>(loadUsers());
   const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
+  const [availableRoles, setAvailableRoles] =
+    useState<UserRole[]>(loadDynamicRoles());
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
