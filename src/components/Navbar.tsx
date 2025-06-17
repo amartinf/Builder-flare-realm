@@ -26,6 +26,7 @@ import {
   ChevronDown,
   Calendar,
   Home,
+  Database,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -50,6 +51,7 @@ export default function Navbar() {
         },
         { href: "/users", icon: Users, label: "Usuarios" },
         { href: "/configuration", icon: Settings, label: "Configuración" },
+        { href: "/filemaker-config", icon: Database, label: "FileMaker" },
         { href: "/reports", icon: BarChart3, label: "Reportes" },
       ],
       auditor: [
