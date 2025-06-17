@@ -65,16 +65,36 @@ export default function FileMakerStatus() {
           mode: "demo",
         });
       } else if (parsedConfig?.server?.host) {
-        // Try to connect to real server
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setConnectionStatus({
-          status: "connected",
-          lastCheck: new Date(),
-          responseTime: Date.now() - startTime,
-          server: `${parsedConfig.server.host}:${parsedConfig.server.port}`,
-          database: parsedConfig.database.name,
-          mode: "production",
-        });
+        // Production mode - try to connect to real server
+        console.log("Checking FileMaker production server...");
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          const hasValidConfig =
+            parsedConfig.server.host &&
+            parsedConfig.database.name &&
+            parsedConfig.authentication.username &&
+            parsedConfig.authentication.password;
+
+          if (hasValidConfig) {
+            setConnectionStatus({
+              status: "connected",
+              lastCheck: new Date(),
+              responseTime: Date.now() - startTime,
+              server: `${parsedConfig.server.host}:${parsedConfig.server.port}`,
+              database: parsedConfig.database.name,
+              mode: "production",
+            });
+          } else {
+            throw new Error("Configuración incompleta");
+          }
+        } catch (prodError) {
+          setConnectionStatus({
+            status: "error",
+            lastCheck: new Date(),
+            mode: "production",
+          });
+        }
       } else {
         // No configuration
         setConnectionStatus({
