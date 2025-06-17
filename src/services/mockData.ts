@@ -421,16 +421,24 @@ export class MockFileMakerAPI {
   ): Promise<MockAudit> {
     await delay(600);
 
+    console.log("MockFileMakerAPI.updateAudit called with:", { id, auditData });
+
     const auditIndex = mockAudits.findIndex((audit) => audit.id === id);
     if (auditIndex === -1) {
+      console.error("Auditoría no encontrada:", id);
       throw new Error("Auditoría no encontrada");
     }
+
+    console.log("Auditoría encontrada en índice:", auditIndex);
+    console.log("Datos actuales:", mockAudits[auditIndex]);
 
     // Update the audit with the new data
     mockAudits[auditIndex] = {
       ...mockAudits[auditIndex],
       ...auditData,
     };
+
+    console.log("Auditoría actualizada:", mockAudits[auditIndex]);
 
     return mockAudits[auditIndex];
   }
