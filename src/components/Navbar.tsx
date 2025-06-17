@@ -47,6 +47,7 @@ export function Navbar() {
   };
 
   const handleLogout = () => {
+    console.log("Logout clicked");
     // In a real app, this would clear authentication tokens and redirect
     navigate("/login");
   };
