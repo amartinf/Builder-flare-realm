@@ -86,6 +86,7 @@ import {
   Award,
   Shield,
   X,
+  CheckCircle,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Progress } from "@/components/ui/progress";
