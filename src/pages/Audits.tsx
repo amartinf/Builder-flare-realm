@@ -197,6 +197,18 @@ export default function Audits() {
 
   const [isAddingTeamMember, setIsAddingTeamMember] = useState(false);
 
+  // Reload auditor roles when configuration changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newRoles = loadDynamicAuditorRoles();
+      if (JSON.stringify(newRoles) !== JSON.stringify(availableAuditorRoles)) {
+        setAvailableAuditorRoles(newRoles);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [availableAuditorRoles]);
+
   // Available users (in a real app, this would come from the user management system)
   const availableUsers = [
     { id: "1", name: "María González", email: "maria.gonzalez@auditor.com" },
