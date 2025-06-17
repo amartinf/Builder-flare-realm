@@ -434,7 +434,15 @@ export default function Users() {
               </div>
 
               <div className="flex items-end">
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setRoleFilter("all");
+                    setStatusFilter("all");
+                  }}
+                >
                   <Filter className="w-4 h-4 mr-2" />
                   Limpiar filtros
                 </Button>
