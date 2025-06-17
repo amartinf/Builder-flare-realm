@@ -202,6 +202,7 @@ export default function Configuration() {
       description: "",
       badge: "default",
       priority: 1,
+      permissions: [],
     });
   };
 
