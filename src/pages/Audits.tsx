@@ -212,6 +212,7 @@ export default function Audits() {
       name: "",
       role: "",
       isLeader: false,
+      assignedDays: 1,
     });
   };
 
