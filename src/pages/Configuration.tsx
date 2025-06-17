@@ -68,6 +68,11 @@ import {
   type NonConformitySeverity,
   type NonConformityStatus,
 } from "@/config/auditOptions";
+import {
+  USER_ROLES,
+  CORRECTIVE_ACTION_STATUSES,
+  type UserRole,
+} from "@/config/correctiveActions";
 
 interface EditDialogState {
   isOpen: boolean;
