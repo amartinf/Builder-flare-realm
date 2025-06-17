@@ -360,6 +360,28 @@ export default function FileMakerConfig() {
           </div>
           <div className="flex items-center gap-2">
             {getConnectionStatusBadge()}
+
+            {config.preferences.useMockData ? (
+              <Button
+                onClick={handleSwitchToProduction}
+                disabled={isLoading}
+                variant="default"
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Database className="w-4 h-4 mr-2" />
+                Activar Producción
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSwitchToDemo}
+                disabled={isLoading}
+                variant="outline"
+              >
+                <TestTube className="w-4 h-4 mr-2" />
+                Volver a Demo
+              </Button>
+            )}
+
             <Button
               onClick={handleTestConnection}
               disabled={connectionStatus === "testing"}
