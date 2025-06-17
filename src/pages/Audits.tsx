@@ -431,19 +431,6 @@ export default function Audits() {
       return;
     }
 
-    // Validate assigned days don't exceed available time
-    const totalCurrentDays = getTotalAssignedDays();
-    const totalWithNew = totalCurrentDays + teamMemberForm.assignedDays;
-
-    if (totalWithNew > formData.workingDays) {
-      toast({
-        title: "Error",
-        description: `Las jornadas asignadas (${teamMemberForm.assignedDays}) exceden el tiempo disponible (${getRemainingDays()} jornadas restantes)`,
-        variant: "destructive",
-      });
-      return;
-    }
-
     const newMember: AuditTeamMember = {
       userId: teamMemberForm.userId,
       name: teamMemberForm.name,
@@ -452,9 +439,13 @@ export default function Audits() {
       assignedDays: teamMemberForm.assignedDays,
     };
 
+    // Add member and redistribute time proportionally
+    const newTeam = [...formData.teamMembers, newMember];
+    const redistributedTeam = redistributeTimeProportionally(newTeam);
+
     setFormData({
       ...formData,
-      teamMembers: [...formData.teamMembers, newMember],
+      teamMembers: redistributedTeam,
     });
 
     resetTeamMemberForm();
