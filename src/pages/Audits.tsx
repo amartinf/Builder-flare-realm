@@ -173,6 +173,7 @@ export default function Audits() {
     name: "",
     role: "",
     isLeader: false,
+    assignedDays: 1,
   });
 
   const [isAddingTeamMember, setIsAddingTeamMember] = useState(false);
@@ -881,8 +882,7 @@ export default function Audits() {
                       <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <AlertTriangle className="w-4 h-4 text-yellow-600" />
                         <span className="text-sm text-yellow-800">
-                          El equipo auditor debe tener al menos un auditor
-                          l��der
+                          El equipo auditor debe tener al menos un auditor líder
                         </span>
                       </div>
                     )}
