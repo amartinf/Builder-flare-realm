@@ -465,6 +465,7 @@ export default function Configuration() {
       ncCategories,
       ncSeverities,
       ncStatuses,
+      userRoles,
       exportDate: new Date().toISOString(),
     };
 
