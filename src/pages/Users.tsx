@@ -205,7 +205,12 @@ export default function Users() {
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === CONFIG_STORAGE_KEY) {
-        setAvailableRoles(loadDynamicRoles());
+        const newRoles = loadDynamicRoles();
+        setAvailableRoles(newRoles);
+        toast({
+          title: "Roles actualizados",
+          description: `Se detectaron cambios en los roles del sistema (${newRoles.length} disponibles)`,
+        });
       }
     };
 
@@ -216,14 +221,18 @@ export default function Users() {
       const newRoles = loadDynamicRoles();
       if (JSON.stringify(newRoles) !== JSON.stringify(availableRoles)) {
         setAvailableRoles(newRoles);
+        toast({
+          title: "Nuevos roles detectados",
+          description: `Se encontraron ${newRoles.length} roles en la configuración`,
+        });
       }
-    }, 1000);
+    }, 2000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
-  }, [availableRoles]);
+  }, [availableRoles, toast]);
 
   // Filter users based on search and filters
   useEffect(() => {
