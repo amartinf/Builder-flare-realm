@@ -117,11 +117,19 @@ export default function FileMakerStatus() {
   const getStatusConfig = () => {
     switch (connectionStatus.status) {
       case "connected":
-        return {
-          label: connectionStatus.mode === "demo" ? "Demo" : "Conectado",
-          color: "bg-green-100 text-green-800",
-          icon: CheckCircle,
-        };
+        if (connectionStatus.mode === "demo") {
+          return {
+            label: "Demo",
+            color: "bg-blue-100 text-blue-800",
+            icon: CheckCircle,
+          };
+        } else {
+          return {
+            label: "Producción",
+            color: "bg-green-100 text-green-800",
+            icon: CheckCircle,
+          };
+        }
       case "disconnected":
         return {
           label: "Desconectado",
@@ -130,7 +138,10 @@ export default function FileMakerStatus() {
         };
       case "error":
         return {
-          label: "Error",
+          label:
+            connectionStatus.mode === "production"
+              ? "Error Producción"
+              : "Error",
           color: "bg-red-100 text-red-800",
           icon: AlertTriangle,
         };
