@@ -14,6 +14,7 @@ import CorrectiveActions from "./pages/CorrectiveActions";
 import ClientPortal from "./pages/ClientPortal";
 import AuditorPortal from "./pages/AuditorPortal";
 import AdminPortal from "./pages/AdminPortal";
+import SecretaryPortal from "./pages/SecretaryPortal";
 import Configuration from "./pages/Configuration";
 import Users from "./pages/Users";
 import Reports from "./pages/Reports";
@@ -61,6 +62,16 @@ function AppContent() {
         element={
           <ProtectedRoute requiredPermission="view_audits">
             <AuditorPortal />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Secretary Portal */}
+      <Route
+        path="/secretary-portal"
+        element={
+          <ProtectedRoute requiredPermission="manage_audit_time">
+            <SecretaryPortal />
           </ProtectedRoute>
         }
       />
