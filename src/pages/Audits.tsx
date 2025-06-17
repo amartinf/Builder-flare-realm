@@ -1293,15 +1293,28 @@ export default function Audits() {
                           <h5 className="font-medium text-sm">
                             Gestión de Tiempo
                           </h5>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={autoRedistributeTime}
-                          >
-                            <Clock className="w-4 h-4 mr-2" />
-                            Redistribuir Automáticamente
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={exportTeamConfiguration}
+                              disabled={formData.teamMembers.length === 0}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Exportar
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={autoRedistributeTime}
+                              disabled={formData.teamMembers.length === 0}
+                            >
+                              <Clock className="w-4 h-4 mr-2" />
+                              Redistribuir
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Overall Progress */}
