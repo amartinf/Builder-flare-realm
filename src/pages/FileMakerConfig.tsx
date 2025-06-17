@@ -397,6 +397,34 @@ export default function FileMakerConfig() {
           </div>
         </div>
 
+        {/* Production Mode Alert */}
+        {!config.preferences.useMockData && (
+          <Card className="border-orange-200 bg-orange-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-800">
+                <Database className="w-5 h-5" />
+                Modo Producción Activo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-orange-700">
+                <p className="font-medium mb-2">
+                  La aplicación está utilizando datos reales del servidor
+                  FileMaker
+                </p>
+                <p className="text-sm">
+                  Servidor: {config.server.protocol}://{config.server.host}:
+                  {config.server.port}
+                </p>
+                <p className="text-sm">Base de datos: {config.database.name}</p>
+                <p className="text-sm">
+                  Usuario: {config.authentication.username}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Server Configuration */}
           <Card>
