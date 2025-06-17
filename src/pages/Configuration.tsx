@@ -1227,7 +1227,7 @@ export default function Configuration() {
                 <Label>Vista previa</Label>
                 <div className="p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-2">
-                    {formData.color && (
+                    {formData.color && editDialog.type !== "userRole" && (
                       <div
                         className="w-4 h-4 rounded-full border"
                         style={{ backgroundColor: formData.color }}
@@ -1243,12 +1243,44 @@ export default function Configuration() {
                         {formData.label || "Etiqueta"}
                       </Badge>
                     )}
+                    {editDialog.type === "userRole" && (
+                      <Badge variant="outline" className="text-xs">
+                        {formData.value || "valor_rol"}
+                      </Badge>
+                    )}
                   </div>
                   {formData.description && (
                     <p className="text-sm text-muted-foreground mt-1">
                       {formData.description}
                     </p>
                   )}
+                  {editDialog.type === "userRole" &&
+                    formData.permissions.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium mb-1">
+                          Permisos seleccionados ({formData.permissions.length}
+                          ):
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {formData.permissions
+                            .slice(0, 5)
+                            .map((permission) => (
+                              <Badge
+                                key={permission}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {permission.replace(/_/g, " ")}
+                              </Badge>
+                            ))}
+                          {formData.permissions.length > 5 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{formData.permissions.length - 5} más
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
