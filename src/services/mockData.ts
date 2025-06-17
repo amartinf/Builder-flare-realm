@@ -1,13 +1,26 @@
 // Mock data service for development when FileMaker is not available
 
+export interface MockAuditTeamMember {
+  userId: string;
+  name: string;
+  role: string;
+  isLeader: boolean;
+}
+
 export interface MockAudit {
   id: number;
   name: string;
   type: string;
   status: string;
   progress: number;
+  startDate: string;
+  endDate: string;
   dueDate: string;
+  workingDays: number;
   auditor: string;
+  teamMembers: MockAuditTeamMember[];
+  modality: string;
+  isoStandard: string;
   nonConformities: number;
   evidences: number;
   createdDate: string;
