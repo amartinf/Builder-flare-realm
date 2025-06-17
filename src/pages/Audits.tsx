@@ -280,11 +280,13 @@ export default function Audits() {
     if (
       !teamMemberForm.userId ||
       !teamMemberForm.name ||
-      !teamMemberForm.role
+      !teamMemberForm.role ||
+      teamMemberForm.assignedDays <= 0
     ) {
       toast({
         title: "Error",
-        description: "Todos los campos del miembro del equipo son requeridos",
+        description:
+          "Todos los campos del miembro del equipo son requeridos y las jornadas deben ser mayor a 0",
         variant: "destructive",
       });
       return;
@@ -304,11 +306,25 @@ export default function Audits() {
       return;
     }
 
+    // Validate assigned days don't exceed available time
+    const totalCurrentDays = getTotalAssignedDays();
+    const totalWithNew = totalCurrentDays + teamMemberForm.assignedDays;
+
+    if (totalWithNew > formData.workingDays) {
+      toast({
+        title: "Error",
+        description: `Las jornadas asignadas (${teamMemberForm.assignedDays}) exceden el tiempo disponible (${getRemainingDays()} jornadas restantes)`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newMember: AuditTeamMember = {
       userId: teamMemberForm.userId,
       name: teamMemberForm.name,
       role: teamMemberForm.role,
       isLeader: teamMemberForm.isLeader,
+      assignedDays: teamMemberForm.assignedDays,
     };
 
     setFormData({
