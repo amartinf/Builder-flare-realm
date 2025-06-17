@@ -1020,7 +1020,7 @@ export default function Audits() {
                               }
                             >
                               {
-                                getAuditorRoleOptions().find(
+                                availableAuditorRoles.find(
                                   (r) => r.value === member.role,
                                 )?.label
                               }
