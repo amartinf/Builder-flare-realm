@@ -869,7 +869,7 @@ export default function Audits() {
                             <Select
                               value={teamMemberForm.role}
                               onValueChange={(value) => {
-                                const role = getAuditorRoleOptions().find(
+                                const role = availableAuditorRoles.find(
                                   (r) => r.value === value,
                                 );
                                 const suggestedDays =
@@ -886,7 +886,7 @@ export default function Audits() {
                                 <SelectValue placeholder="Seleccionar rol" />
                               </SelectTrigger>
                               <SelectContent>
-                                {getAuditorRoleOptions().map((role) => (
+                                {availableAuditorRoles.map((role) => (
                                   <SelectItem
                                     key={role.value}
                                     value={role.value}
