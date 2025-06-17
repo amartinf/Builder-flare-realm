@@ -1060,16 +1060,42 @@ export default function Audits() {
                     </div>
                   )}
 
-                  {/* Team Validation Warning */}
-                  {formData.teamMembers.length > 0 &&
-                    !formData.teamMembers.some((m) => m.isLeader) && (
-                      <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                        <span className="text-sm text-yellow-800">
-                          El equipo auditor debe tener al menos un auditor líder
-                        </span>
-                      </div>
-                    )}
+                  {/* Team Validation Warnings */}
+                  {formData.teamMembers.length > 0 && (
+                    <div className="space-y-2">
+                      {!formData.teamMembers.some((m) => m.isLeader) && (
+                        <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                          <span className="text-sm text-yellow-800">
+                            El equipo auditor debe tener al menos un auditor
+                            líder
+                          </span>
+                        </div>
+                      )}
+
+                      {getTotalAssignedDays() > formData.workingDays && (
+                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <AlertTriangle className="w-4 h-4 text-red-600" />
+                          <span className="text-sm text-red-800">
+                            El tiempo asignado ({getTotalAssignedDays()}{" "}
+                            jornadas) excede la duración de la auditoría (
+                            {formData.workingDays} jornadas)
+                          </span>
+                        </div>
+                      )}
+
+                      {getTotalAssignedDays() < formData.workingDays &&
+                        formData.teamMembers.length > 0 && (
+                          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <Clock className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm text-blue-800">
+                              Quedan {getRemainingDays()} jornadas sin asignar.
+                              Considera optimizar la distribución del tiempo.
+                            </span>
+                          </div>
+                        )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
