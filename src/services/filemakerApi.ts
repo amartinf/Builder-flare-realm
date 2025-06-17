@@ -319,7 +319,30 @@ export const isFileMakerConfigured = (): boolean => {
 
 // Check if we should use mock data
 export const shouldUseMockData = (): boolean => {
-  return import.meta.env.VITE_MOCK_DATA === "true" || !isFileMakerConfigured();
+  // First check localStorage configuration
+  try {
+    const config = localStorage.getItem("filemaker-config");
+    if (config) {
+      const parsedConfig = JSON.parse(config);
+      const useMock = parsedConfig.preferences?.useMockData ?? true;
+      console.log("Using mock data from config:", useMock);
+      return useMock;
+    }
+  } catch (error) {
+    console.error("Error reading FileMaker config from localStorage:", error);
+  }
+
+  // Fallback to environment variables
+  const envMockData = import.meta.env.VITE_MOCK_DATA === "true";
+  const filemakerConfigured = isFileMakerConfigured();
+
+  console.log("FileMaker status:", {
+    envMockData,
+    filemakerConfigured,
+    shouldUseMock: envMockData || !filemakerConfigured,
+  });
+
+  return envMockData || !filemakerConfigured;
 };
 
 // Create singleton instance
