@@ -208,6 +208,10 @@ export default function RoleSelector() {
                 Auditorías, no conformidades, evidencias
               </p>
               <p>
+                <span className="font-medium text-purple-600">Secretaría:</span>{" "}
+                Gestión de equipos y distribución de tiempo
+              </p>
+              <p>
                 <span className="font-medium text-green-600">Cliente:</span>{" "}
                 Consulta de auditorías y reportes
               </p>
