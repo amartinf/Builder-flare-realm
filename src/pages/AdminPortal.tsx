@@ -23,6 +23,7 @@ import {
   Key,
   Mail,
   Download,
+  Server,
 } from "lucide-react";
 
 export default function AdminPortal() {
@@ -216,6 +217,17 @@ export default function AdminPortal() {
                   </div>
                 </Button>
 
+                <Button
+                  variant="outline"
+                  className="h-auto p-4"
+                  onClick={() => (window.location.href = "/filemaker-config")}
+                >
+                  <div className="text-center">
+                    <Database className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">FileMaker Server</div>
+                  </div>
+                </Button>
+
                 <Button variant="outline" className="h-auto p-4">
                   <div className="text-center">
                     <Key className="w-6 h-6 mx-auto mb-2" />
@@ -225,8 +237,8 @@ export default function AdminPortal() {
 
                 <Button variant="outline" className="h-auto p-4">
                   <div className="text-center">
-                    <Database className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Base de Datos</div>
+                    <Server className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">Monitoreo</div>
                   </div>
                 </Button>
               </div>
