@@ -960,13 +960,23 @@ export default function Audits() {
 
                   {/* Team Members List */}
                   {formData.teamMembers.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">
+                          Miembros del Equipo ({formData.teamMembers.length})
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          Total: {getTotalAssignedDays()}/{formData.workingDays}{" "}
+                          jornadas
+                        </span>
+                      </div>
+
                       {formData.teamMembers.map((member) => (
                         <div
                           key={member.userId}
                           className="flex items-center justify-between p-3 border rounded-lg"
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-1">
                             <div className="flex items-center gap-2">
                               {member.isLeader && (
                                 <Shield className="w-4 h-4 text-primary" />
@@ -984,17 +994,69 @@ export default function Audits() {
                                 )?.label
                               }
                             </Badge>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              <span>
+                                {member.assignedDays} jornada
+                                {member.assignedDays !== 1 ? "s" : ""}
+                              </span>
+                            </div>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeTeamMember(member.userId)}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <div className="text-xs text-muted-foreground">
+                              {Math.round(
+                                (member.assignedDays / formData.workingDays) *
+                                  100,
+                              )}
+                              %
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeTeamMember(member.userId)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
+
+                      {/* Time allocation progress bar */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Asignación de Tiempo</span>
+                          <span>
+                            {Math.round(
+                              (getTotalAssignedDays() / formData.workingDays) *
+                                100,
+                            )}
+                            %
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-300 ${
+                              getTotalAssignedDays() > formData.workingDays
+                                ? "bg-red-500"
+                                : getTotalAssignedDays() ===
+                                    formData.workingDays
+                                  ? "bg-green-500"
+                                  : "bg-blue-500"
+                            }`}
+                            style={{
+                              width: `${Math.min((getTotalAssignedDays() / formData.workingDays) * 100, 100)}%`,
+                            }}
+                          />
+                        </div>
+                        {getTotalAssignedDays() > formData.workingDays && (
+                          <p className="text-xs text-red-600">
+                            ⚠️ Tiempo sobreasignado:{" "}
+                            {getTotalAssignedDays() - formData.workingDays}{" "}
+                            jornadas extra
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
 
