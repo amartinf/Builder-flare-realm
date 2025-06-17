@@ -135,12 +135,31 @@ function getModalityIcon(modality: string) {
   }
 }
 
+// Function to load dynamic roles from configuration
+const loadDynamicAuditorRoles = () => {
+  try {
+    const stored = localStorage.getItem("auditpro-configuration");
+    if (stored) {
+      const config = JSON.parse(stored);
+      return config.auditorRoles || getAuditorRoleOptions();
+    }
+  } catch (error) {
+    console.error("Error loading dynamic auditor roles:", error);
+  }
+  return getAuditorRoleOptions();
+};
+
 export default function Audits() {
   const { toast } = useToast();
 
   // FileMaker integration
   const { audits, loading, error, createAudit, updateAudit, deleteAudit } =
     useAudits();
+
+  // Dynamic roles
+  const [availableAuditorRoles, setAvailableAuditorRoles] = useState(
+    loadDynamicAuditorRoles(),
+  );
 
   // Local state for UI
   const [searchQuery, setSearchQuery] = useState("");
