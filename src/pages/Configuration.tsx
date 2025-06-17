@@ -136,6 +136,9 @@ export default function Configuration() {
       ncSeverities: getNCSeverityOptions(),
       ncStatuses: getNCStatusOptions(),
       userRoles: USER_ROLES,
+      auditModalities: getAuditModalityOptions(),
+      isoStandards: getISOStandardOptions(),
+      auditorRoles: getAuditorRoleOptions(),
     };
   };
 
