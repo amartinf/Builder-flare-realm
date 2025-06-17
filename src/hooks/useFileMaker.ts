@@ -93,9 +93,7 @@ const mapFileMakerAudit = (fmAudit: FileMakerAudit): Audit => ({
   dueDate: fmAudit["Audits::DueDate"],
   workingDays: fmAudit["Audits::WorkingDays"] || 1,
   auditor: fmAudit["Audits::Auditor"],
-  teamMembers: fmAudit["Audits::TeamMembers"]
-    ? JSON.parse(fmAudit["Audits::TeamMembers"])
-    : [],
+  teamMembers: fmAudit["Audits::TeamMembers"] ? JSON.parse(fmAudit["Audits::TeamMembers"]) : [],
   modality: fmAudit["Audits::Modality"] || "in_situ",
   isoStandard: fmAudit["Audits::ISOStandard"] || "iso_9001",
   nonConformities: fmAudit["Audits::NonConformityCount"] || 0,
@@ -155,23 +153,25 @@ export const useAudits = () => {
   const { toast } = useToast();
 
   const fetchAudits = useCallback(async () => {
+    console.log("fetchAudits called");
     setLoading(true);
     setError(null);
     try {
       if (shouldUseMockData()) {
         // Use mock data for development
         const mockAudits = await MockFileMakerAPI.getAudits();
+        console.log("Fetched audits:", mockAudits.length);
         setAudits(mockAudits);
       } else {
         // Use real FileMaker API
         const response = await fileMakerAPI.getRecords<FileMakerAudit>(
           LAYOUTS.AUDITS,
         );
-        const mappedAudits =
-          response.response.data?.map(mapFileMakerAudit) || [];
+        const mappedAudits = response.response.data?.map(mapFileMakerAudit) || [];
         setAudits(mappedAudits);
       }
     } catch (err) {
+      console.error("Error fetching audits:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Error al cargar auditorías";
       setError(errorMessage);
@@ -180,8 +180,7 @@ export const useAudits = () => {
       if (!shouldUseMockData()) {
         toast({
           title: "Error de conexión",
-          description:
-            "No se pudo conectar con FileMaker. Usando datos de demostración.",
+          description: "No se pudo conectar con FileMaker. Usando datos de demostración.",
           variant: "destructive",
         });
       }
@@ -198,6 +197,12 @@ export const useAudits = () => {
       setLoading(false);
     }
   }, [toast]);
+
+  // Auto-fetch audits on mount
+  useEffect(() => {
+    console.log("useAudits: Auto-fetching audits on mount");
+    fetchAudits();
+  }, [fetchAudits]);
 
   const createAudit = useCallback(
     async (auditData: Omit<Audit, "id" | "nonConformities" | "evidences">) => {
@@ -264,15 +269,18 @@ export const useAudits = () => {
         if (shouldUseMockData()) {
           // Use mock data
           console.log("Using mock data, calling MockFileMakerAPI.updateAudit");
-          const updatedAudit = await MockFileMakerAPI.updateAudit(
-            id,
-            auditData,
-          );
+          const updatedAudit = await MockFileMakerAPI.updateAudit(id, auditData);
           console.log("Mock API returned:", updatedAudit);
 
           setAudits((prev) => {
+            console.log("Previous audits count:", prev.length);
+            const auditExists = prev.find(a => a.id === id);
+            if (!auditExists) {
+              console.error("Audit not found in state:", id);
+              return prev;
+            }
             const newAudits = prev.map((a) => (a.id === id ? updatedAudit : a));
-            console.log("Updated audits state:", newAudits);
+            console.log("Updated audits state count:", newAudits.length);
             return newAudits;
           });
 
@@ -327,14 +335,16 @@ export const useAudits = () => {
         throw err;
       }
     },
-    [audits, toast],
+    [toast],
   );
 
   const deleteAudit = useCallback(
     async (id: number) => {
+      console.log("deleteAudit called with id:", id);
       try {
         if (shouldUseMockData()) {
           // Use mock data
+          console.log("Using mock data for delete");
           await MockFileMakerAPI.deleteAudit(id);
         } else {
           // Use real FileMaker API
@@ -351,7 +361,17 @@ export const useAudits = () => {
           await fileMakerAPI.deleteRecord(LAYOUTS.AUDITS, recordId);
         }
 
-        setAudits((prev) => prev.filter((a) => a.id !== id));
+        setAudits((prev) => {
+          console.log("Previous audits count before delete:", prev.length);
+          const auditExists = prev.find(a => a.id === id);
+          if (!auditExists) {
+            console.error("Audit to delete not found in state:", id);
+            return prev;
+          }
+          const filtered = prev.filter((a) => a.id !== id);
+          console.log("Audits count after delete:", filtered.length);
+          return filtered;
+        });
 
         toast({
           title: "Auditoría eliminada",
@@ -384,6 +404,7 @@ export const useAudits = () => {
     createAudit,
     updateAudit,
     deleteAudit,
+  };
   };
 };
 
