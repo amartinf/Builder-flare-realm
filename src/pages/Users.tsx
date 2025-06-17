@@ -173,7 +173,8 @@ export default function Users() {
 
   const [users, setUsers] = useState<User[]>(loadUsers());
   const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
-  const [availableRoles, setAvailableRoles] = useState<UserRole[]>(loadDynamicRoles());
+  const [availableRoles, setAvailableRoles] =
+    useState<UserRole[]>(loadDynamicRoles());
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -208,7 +209,7 @@ export default function Users() {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     // Also check for changes periodically (for same-tab updates)
     const interval = setInterval(() => {
@@ -219,7 +220,7 @@ export default function Users() {
     }, 1000);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
   }, [availableRoles]);
@@ -506,6 +507,9 @@ export default function Users() {
                   {availableRoles.length} roles disponibles
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Users Table */}
         <Card>
