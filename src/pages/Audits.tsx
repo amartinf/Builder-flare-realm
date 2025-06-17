@@ -399,6 +399,28 @@ export default function Audits() {
     }
 
     setFormData(newFormData);
+
+    // Auto-redistribute time if team exists and working days changed
+    if (
+      newFormData.workingDays !== formData.workingDays &&
+      formData.teamMembers.length > 0
+    ) {
+      setTimeout(() => {
+        const redistributed = redistributeTimeProportionally(
+          formData.teamMembers,
+        );
+        setFormData((prev) => ({
+          ...prev,
+          teamMembers: redistributed,
+          workingDays: newFormData.workingDays,
+        }));
+
+        toast({
+          title: "Tiempo redistribuido automáticamente",
+          description: `Se ajustó la distribución del equipo para ${newFormData.workingDays} días de trabajo`,
+        });
+      }, 500);
+    }
   };
 
   // Add team member
