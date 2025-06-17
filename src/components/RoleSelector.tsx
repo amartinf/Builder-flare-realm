@@ -37,6 +37,14 @@ const roleConfig = {
     color: "text-blue-600",
     bgColor: "bg-blue-50 border-blue-200",
   },
+  secretary: {
+    icon: User,
+    title: "Secretaría Técnica",
+    description: "Gestión de equipos y planificación",
+    email: "secretary@auditpro.com",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50 border-purple-200",
+  },
   client: {
     icon: Building,
     title: "Cliente",
