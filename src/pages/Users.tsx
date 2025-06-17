@@ -173,8 +173,7 @@ export default function Users() {
 
   const [users, setUsers] = useState<User[]>(loadUsers());
   const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
-  const [availableRoles, setAvailableRoles] =
-    useState<UserRole[]>(loadDynamicRoles());
+  const [availableRoles, setAvailableRoles] = useState<UserRole[]>(loadDynamicRoles());
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -209,7 +208,7 @@ export default function Users() {
       }
     };
 
-    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
 
     // Also check for changes periodically (for same-tab updates)
     const interval = setInterval(() => {
@@ -220,7 +219,7 @@ export default function Users() {
     }, 1000);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
   }, [availableRoles]);
@@ -493,6 +492,9 @@ export default function Users() {
               <div className="flex items-end">
                 <Button
                   variant="outline"
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => {
                     setSearchTerm("");
@@ -503,10 +505,10 @@ export default function Users() {
                   <Filter className="w-4 h-4 mr-2" />
                   Limpiar filtros
                 </Button>
+                <div className="text-xs text-muted-foreground text-center">
+                  {availableRoles.length} roles disponibles
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Users Table */}
         <Card>
