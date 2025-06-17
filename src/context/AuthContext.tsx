@@ -70,6 +70,22 @@ const mockUsers: User[] = [
     ],
     organization: "Empresa Cliente SA",
   },
+  {
+    id: "4",
+    name: "Carmen Torres",
+    email: "secretary@auditpro.com",
+    role: "secretary",
+    permissions: [
+      "view_audits",
+      "edit_audits",
+      "manage_audit_time",
+      "assign_team_members",
+      "view_nonconformities",
+      "schedule_audits",
+      "manage_audit_workflow",
+    ],
+    organization: "AuditPro Corp",
+  },
 ];
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
