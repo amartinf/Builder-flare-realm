@@ -1,4 +1,30 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useAuth, UserRole } from "@/context/AuthContext";
+import {
+  FileText,
+  AlertTriangle,
+  Upload,
+  Users,
+  Settings,
+  BarChart3,
+  Building,
+  Menu,
+  X,
+  HelpCircle,
+  Shield,
+  User,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,47 +83,107 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and brand */}
-          <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center space-x-2">
-              <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg">
-                <Shield className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <div className="p-1 bg-primary/10 rounded">
+                <FileText className="w-6 h-6 text-primary" />
               </div>
-              <span className="text-xl font-bold text-foreground">
-                AuditPro
-              </span>
-            </Link>
+              <span className="font-bold text-xl text-primary">AuditPro</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200",
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent",
-                  )}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                  {item.name === "No Conformidades" && (
-                    <Badge variant="destructive" className="text-xs">
-                      3
-                    </Badge>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+          <nav className="hidden md:flex items-center space-x-1">
+            {navigationItems.map((item) => (
+              <Button
+                key={item.href}
+                variant="ghost"
+                className="flex items-center space-x-2"
+                asChild
+              >
+                <a href={item.href}>
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </a>
+              </Button>
+            ))}
+          </nav>
 
-          {/* User menu and mobile menu button */}
           <div className="flex items-center space-x-4">
+            {/* User Menu */}
+            {user && currentRole && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
+                      <Badge className={getRoleConfig(currentRole).color}>
+                        {getRoleConfig(currentRole).label}
+                      </Badge>
+                      <span className="hidden sm:inline text-sm font-medium">
+                        {user.name}
+                      </span>
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">{user.organization}</p>
+                    </div>
+
+                    <DropdownMenuSeparator />
+
+                    {user.role === "admin" && (
+                      <>
+                        <div className="px-2 py-1.5">
+                          <p className="text-xs font-medium text-muted-foreground">CAMBIAR VISTA</p>
+                        </div>
+                        <DropdownMenuItem onClick={() => switchRole("admin")}>
+                          <Shield className="w-4 h-4 mr-2" />
+                          Vista Administrador
+                          {currentRole === "admin" && <span className="ml-auto text-xs">✓</span>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => switchRole("auditor")}>
+                          <User className="w-4 h-4 mr-2" />
+                          Vista Auditor
+                          {currentRole === "auditor" && <span className="ml-auto text-xs">✓</span>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => switchRole("client")}>
+                          <Building className="w-4 h-4 mr-2" />
+                          Vista Cliente
+                          {currentRole === "client" && <span className="ml-auto text-xs">✓</span>}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+
+                    <DropdownMenuItem onClick={logout}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Cerrar Sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </Button>
+          </div>
+        </div>
             {/* User dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -169,10 +255,7 @@ export function Navbar() {
               variant="ghost"
               className="md:hidden"
               onClick={() => {
-                console.log(
-                  "Mobile menu button clicked, current state:",
-                  isMobileMenuOpen,
-                );
+                console.log("Mobile menu button clicked, current state:", isMobileMenuOpen);
                 setIsMobileMenuOpen(!isMobileMenuOpen);
               }}
             >
