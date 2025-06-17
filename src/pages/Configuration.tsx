@@ -122,6 +122,7 @@ export default function Configuration() {
       ncCategories: getNCCategoryOptions(),
       ncSeverities: getNCSeverityOptions(),
       ncStatuses: getNCStatusOptions(),
+      userRoles: USER_ROLES,
     };
   };
 
