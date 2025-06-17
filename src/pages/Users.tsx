@@ -489,9 +489,6 @@ export default function Users() {
                 </Select>
               </div>
 
-              <div className="flex items-end">
-                <Button
-                  variant="outline"
               <div className="flex flex-col gap-2">
                 <Button
                   variant="outline"
