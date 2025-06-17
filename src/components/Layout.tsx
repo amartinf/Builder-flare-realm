@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
+import DataModeIndicator from "./DataModeIndicator";
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ export function Layout({ children, showNavbar = true }: LayoutProps) {
     <div className="min-h-screen bg-background">
       {showNavbar && <Navbar />}
       <main className={showNavbar ? "pt-16" : ""}>{children}</main>
+      <DataModeIndicator />
     </div>
   );
 }
