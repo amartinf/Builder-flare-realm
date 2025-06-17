@@ -386,6 +386,15 @@ export default function Configuration() {
             ),
           );
           break;
+        case "userRole":
+          setUserRoles(
+            userRoles.map((item) =>
+              item.value === editDialog.item.value
+                ? (newItem as UserRole)
+                : item,
+            ),
+          );
+          break;
       }
     }
 
