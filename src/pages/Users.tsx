@@ -451,7 +451,7 @@ export default function Users() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los roles</SelectItem>
-                    {USER_ROLES.map((role) => (
+                    {availableRoles.map((role) => (
                       <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
