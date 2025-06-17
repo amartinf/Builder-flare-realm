@@ -285,24 +285,106 @@ export default function Audits() {
     return Math.max(0, formData.workingDays - totalAssigned);
   };
 
-  // Get suggested days for new member based on role
+  // Distribute time proportionally among team members
+  const redistributeTimeProportionally = (newTeam: AuditTeamMember[]) => {
+    if (newTeam.length === 0) return [];
+
+    // Define role weights for proportional distribution
+    const getRoleWeight = (role: string) => {
+      const weights: Record<string, number> = {
+        auditor_lider: 1.0, // 100% participation
+        auditor_principal: 0.8, // 80% participation
+        auditor_junior: 0.6, // 60% participation
+        experto_tecnico: 0.5, // 50% participation
+        observador: 0.3, // 30% participation
+      };
+      return weights[role] || 0.6;
+    };
+
+    // Calculate total weight
+    const totalWeight = newTeam.reduce(
+      (sum, member) => sum + getRoleWeight(member.role),
+      0,
+    );
+
+    // Distribute proportionally
+    return newTeam.map((member) => {
+      const memberWeight = getRoleWeight(member.role);
+      const proportionalDays =
+        Math.round((memberWeight / totalWeight) * formData.workingDays * 10) /
+        10; // Round to 1 decimal
+
+      return {
+        ...member,
+        assignedDays: Math.max(0.5, proportionalDays), // Minimum 0.5 days
+      };
+    });
+  };
+
+  // Get suggested days for new member based on proportional distribution
   const getSuggestedDaysForRole = (role: string) => {
     const roleConfig = availableAuditorRoles.find((r) => r.value === role);
     if (!roleConfig) return 1;
 
-    // Suggest days based on role importance and remaining capacity
-    const remaining = getRemainingDays();
-    if (remaining <= 0) return 0;
+    // Create a temporary team with the new member to calculate proportional distribution
+    const tempMember: AuditTeamMember = {
+      userId: "temp",
+      name: "temp",
+      role: role,
+      isLeader: roleConfig.isLeader,
+      assignedDays: 1,
+    };
 
-    if (roleConfig.isLeader) {
-      return Math.min(formData.workingDays, remaining); // Leaders typically work all days
-    } else if (role === "auditor_principal") {
-      return Math.min(Math.ceil(formData.workingDays * 0.8), remaining);
-    } else if (role === "experto_tecnico") {
-      return Math.min(Math.ceil(formData.workingDays * 0.5), remaining);
-    } else {
-      return Math.min(Math.ceil(formData.workingDays * 0.6), remaining);
+    const tempTeam = [...formData.teamMembers, tempMember];
+    const redistributed = redistributeTimeProportionally(tempTeam);
+    const newMemberData = redistributed.find((m) => m.userId === "temp");
+
+    return newMemberData ? newMemberData.assignedDays : 1;
+  };
+
+  // Auto-redistribute time when team changes
+  const autoRedistributeTime = () => {
+    if (formData.teamMembers.length === 0) return;
+
+    const redistributed = redistributeTimeProportionally(formData.teamMembers);
+    setFormData((prev) => ({
+      ...prev,
+      teamMembers: redistributed,
+    }));
+
+    toast({
+      title: "Tiempo redistribuido",
+      description:
+        "El tiempo se ha distribuido proporcionalmente entre los miembros del equipo",
+    });
+  };
+
+  // Manual time adjustment with validation
+  const adjustMemberTime = (userId: string, newDays: number) => {
+    const updatedMembers = formData.teamMembers.map((member) =>
+      member.userId === userId ? { ...member, assignedDays: newDays } : member,
+    );
+
+    const totalAssigned = updatedMembers.reduce(
+      (sum, member) => sum + member.assignedDays,
+      0,
+    );
+
+    if (totalAssigned > formData.workingDays) {
+      toast({
+        title: "Error",
+        description: `El tiempo total asignado (${totalAssigned} días) excede la duración de la auditoría (${formData.workingDays} días)`,
+        variant: "destructive",
+      });
+      return false;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      teamMembers: updatedMembers,
+    }));
+
+    return true;
   };
 
   // Handle date changes and auto-calculate working days
