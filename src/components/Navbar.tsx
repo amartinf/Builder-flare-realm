@@ -147,6 +147,12 @@ export function Navbar() {
                     <span>Configuración del Sistema</span>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/diagnostics">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>🧪 Diagnósticos</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
