@@ -961,7 +961,7 @@ export default function Audits() {
                                 })
                               }
                               disabled={
-                                getAuditorRoleOptions().find(
+                                availableAuditorRoles.find(
                                   (r) => r.value === teamMemberForm.role,
                                 )?.isLeader
                               }
