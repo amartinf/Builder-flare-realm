@@ -507,26 +507,36 @@ export default function Audits() {
 
       if (editingAudit) {
         console.log("Actualizando auditoría:", editingAudit.id, auditData);
-        await updateAudit(editingAudit.id, auditData);
-        console.log("Auditoría actualizada exitosamente");
+        const updatedAudit = await updateAudit(editingAudit.id, auditData);
+        console.log("Auditoría actualizada exitosamente:", updatedAudit);
+
         toast({
           title: "Auditoría actualizada",
           description: "La auditoría ha sido actualizada exitosamente",
         });
+
+        // Small delay to ensure state updates properly
+        setTimeout(() => {
+          setIsCreateDialogOpen(false);
+          resetForm();
+        }, 100);
       } else {
-        await createAudit(auditData);
+        const newAudit = await createAudit(auditData);
+        console.log("Auditoría creada exitosamente:", newAudit);
+
         toast({
           title: "Auditoría creada",
           description: "La auditoría ha sido creada exitosamente",
         });
-      }
 
-      setIsCreateDialogOpen(false);
-      resetForm();
+        setIsCreateDialogOpen(false);
+        resetForm();
+      }
     } catch (error) {
+      console.error("Error al guardar auditoría:", error);
       toast({
         title: "Error",
-        description: "Hubo un error al guardar la auditoría",
+        description: `Hubo un error al guardar la auditoría: ${error instanceof Error ? error.message : "Error desconocido"}`,
         variant: "destructive",
       });
     } finally {
