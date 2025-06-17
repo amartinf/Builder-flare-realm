@@ -167,6 +167,7 @@ export default function Configuration() {
     description: "",
     badge: "default",
     priority: 1,
+    permissions: [] as string[],
   });
 
   // Save configuration to localStorage whenever data changes
