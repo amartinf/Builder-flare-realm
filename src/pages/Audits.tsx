@@ -388,6 +388,86 @@ export default function Audits() {
     return true;
   };
 
+  // Export team configuration for reuse
+  const exportTeamConfiguration = () => {
+    if (formData.teamMembers.length === 0) {
+      toast({
+        title: "Error",
+        description: "No hay equipo configurado para exportar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const config = {
+      auditName: formData.name,
+      workingDays: formData.workingDays,
+      teamMembers: formData.teamMembers.map((member) => ({
+        role: member.role,
+        assignedDays: member.assignedDays,
+        percentage: Math.round(
+          (member.assignedDays / formData.workingDays) * 100,
+        ),
+      })),
+      totalDays: getTotalAssignedDays(),
+      efficiency: Math.round(
+        (getTotalAssignedDays() / formData.workingDays) * 100,
+      ),
+    };
+
+    // Create downloadable JSON
+    const dataStr = JSON.stringify(config, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `configuracion-tiempo-${formData.name.replace(/\s+/g, "-").toLowerCase()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Configuración exportada",
+      description: "La configuración de tiempo del equipo se ha descargado",
+    });
+  };
+
+  // Validate time distribution compliance
+  const validateTimeCompliance = () => {
+    const totalAssigned = getTotalAssignedDays();
+    const compliance = {
+      isCompliant: totalAssigned === formData.workingDays,
+      utilization: (totalAssigned / formData.workingDays) * 100,
+      variance: totalAssigned - formData.workingDays,
+      recommendations: [] as string[],
+    };
+
+    if (compliance.variance > 0) {
+      compliance.recommendations.push(
+        `Reducir ${compliance.variance.toFixed(1)} jornadas del equipo`,
+      );
+    } else if (compliance.variance < 0) {
+      compliance.recommendations.push(
+        `Asignar ${Math.abs(compliance.variance).toFixed(1)} jornadas adicionales`,
+      );
+    }
+
+    // Check for team efficiency
+    const teamSize = formData.teamMembers.length;
+    const avgDaysPerMember = totalAssigned / teamSize;
+
+    if (avgDaysPerMember < 1) {
+      compliance.recommendations.push(
+        "Considerar reducir el tamaño del equipo",
+      );
+    } else if (avgDaysPerMember > formData.workingDays * 0.8) {
+      compliance.recommendations.push(
+        "Considerar añadir más miembros al equipo",
+      );
+    }
+
+    return compliance;
+  };
+
   // Handle date changes and auto-calculate working days
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
     const newFormData = { ...formData, [field]: value };
