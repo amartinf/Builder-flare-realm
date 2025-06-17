@@ -53,6 +53,7 @@ import {
   Palette,
   Download,
   Upload,
+  Award,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import {
