@@ -300,8 +300,26 @@ export interface FileMakerComment {
   "Comments::Type": string;
 }
 
-// Environment configuration
+// Environment configuration with localStorage fallback
 const getFileMakerConfig = (): FileMakerConfig => {
+  // Try to get config from localStorage first
+  try {
+    const storedConfig = localStorage.getItem("filemaker-config");
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig);
+      return {
+        server: `${config.server.protocol}://${config.server.host}:${config.server.port}`,
+        database: config.database.name,
+        username: config.authentication.username,
+        password: config.authentication.password,
+        layout: "API_Layout",
+      };
+    }
+  } catch (error) {
+    console.error("Error reading FileMaker config from localStorage:", error);
+  }
+
+  // Fallback to environment variables
   return {
     server: import.meta.env.VITE_FILEMAKER_SERVER || "",
     database: import.meta.env.VITE_FILEMAKER_DATABASE || "AuditPro",
@@ -314,7 +332,14 @@ const getFileMakerConfig = (): FileMakerConfig => {
 // Check if FileMaker is configured
 export const isFileMakerConfigured = (): boolean => {
   const config = getFileMakerConfig();
-  return !!(config.server && config.username && config.password);
+  const isConfigured = !!(config.server && config.username && config.password);
+  console.log("FileMaker configuration check:", {
+    server: !!config.server,
+    username: !!config.username,
+    password: !!config.password,
+    isConfigured,
+  });
+  return isConfigured;
 };
 
 // Check if we should use mock data
