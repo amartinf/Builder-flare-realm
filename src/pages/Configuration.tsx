@@ -495,6 +495,124 @@ export default function Configuration() {
     { value: "draft", label: "Borrador" },
   ];
 
+  // Lista de permisos disponibles en el sistema
+  const availablePermissions = [
+    {
+      value: "create_audit",
+      label: "Crear auditorías",
+      category: "Auditorías",
+    },
+    { value: "edit_audit", label: "Editar auditorías", category: "Auditorías" },
+    {
+      value: "delete_audit",
+      label: "Eliminar auditorías",
+      category: "Auditorías",
+    },
+    {
+      value: "view_all_audits",
+      label: "Ver todas las auditorías",
+      category: "Auditorías",
+    },
+    {
+      value: "view_assigned_audits",
+      label: "Ver auditorías asignadas",
+      category: "Auditorías",
+    },
+    {
+      value: "create_nonconformity",
+      label: "Crear no conformidades",
+      category: "No Conformidades",
+    },
+    {
+      value: "edit_nonconformity",
+      label: "Editar no conformidades",
+      category: "No Conformidades",
+    },
+    {
+      value: "delete_nonconformity",
+      label: "Eliminar no conformidades",
+      category: "No Conformidades",
+    },
+    {
+      value: "view_all_nonconformities",
+      label: "Ver todas las no conformidades",
+      category: "No Conformidades",
+    },
+    {
+      value: "view_assigned_nonconformities",
+      label: "Ver no conformidades asignadas",
+      category: "No Conformidades",
+    },
+    {
+      value: "submit_corrective_actions",
+      label: "Enviar acciones correctivas",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "modify_corrective_actions",
+      label: "Modificar acciones correctivas",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "review_corrective_actions",
+      label: "Revisar acciones correctivas",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "approve_corrective_actions",
+      label: "Aprobar acciones correctivas",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "reject_corrective_actions",
+      label: "Rechazar acciones correctivas",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "verify_implementation",
+      label: "Verificar implementación",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "view_corrective_action_status",
+      label: "Ver estado de acciones correctivas",
+      category: "Acciones Correctivas",
+    },
+    {
+      value: "upload_evidence",
+      label: "Subir evidencias",
+      category: "Evidencias",
+    },
+    { value: "view_evidence", label: "Ver evidencias", category: "Evidencias" },
+    {
+      value: "delete_evidence",
+      label: "Eliminar evidencias",
+      category: "Evidencias",
+    },
+    {
+      value: "manage_configuration",
+      label: "Gestionar configuración",
+      category: "Administración",
+    },
+    {
+      value: "manage_users",
+      label: "Gestionar usuarios",
+      category: "Administración",
+    },
+    {
+      value: "assign_team_members",
+      label: "Asignar miembros del equipo",
+      category: "Administración",
+    },
+    {
+      value: "final_approval",
+      label: "Aprobación final",
+      category: "Administración",
+    },
+    { value: "view_reports", label: "Ver reportes", category: "Reportes" },
+    { value: "export_data", label: "Exportar datos", category: "Reportes" },
+  ];
+
   const ConfigurationSection = ({
     title,
     description,
