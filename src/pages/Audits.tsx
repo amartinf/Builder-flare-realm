@@ -764,7 +764,35 @@ export default function Audits() {
                   {isAddingTeamMember && (
                     <Card className="p-4">
                       <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Time allocation info */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-blue-800">
+                              Distribución de Jornadas
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm text-blue-700">
+                                {getRemainingDays()} jornadas disponibles de{" "}
+                                {formData.workingDays}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-blue-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{
+                                width: `${(getTotalAssignedDays() / formData.workingDays) * 100}%`,
+                              }}
+                            />
+                          </div>
+                          <div className="text-xs text-blue-600 mt-1">
+                            {getTotalAssignedDays()} de {formData.workingDays}{" "}
+                            jornadas asignadas
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
                           <div className="space-y-2">
                             <Label>Usuario</Label>
                             <Select
