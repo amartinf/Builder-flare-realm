@@ -809,10 +809,17 @@ export default function Configuration() {
 
         {/* Configuration Tabs */}
         <Tabs defaultValue="audits" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="audits" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Auditorías
+            </TabsTrigger>
+            <TabsTrigger
+              value="audit-config"
+              className="flex items-center gap-2"
+            >
+              <Award className="w-4 h-4" />
+              Config. Auditorías
             </TabsTrigger>
             <TabsTrigger
               value="nonconformities"
