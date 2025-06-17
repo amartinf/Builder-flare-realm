@@ -205,6 +205,9 @@ export default function Configuration() {
       ncSeverities,
       ncStatuses,
       userRoles,
+      auditModalities,
+      isoStandards,
+      auditorRoles,
     };
 
     localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
