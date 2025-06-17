@@ -179,6 +179,7 @@ export default function Configuration() {
       ncCategories,
       ncSeverities,
       ncStatuses,
+      userRoles,
     };
 
     localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
@@ -190,6 +191,7 @@ export default function Configuration() {
     ncCategories,
     ncSeverities,
     ncStatuses,
+    userRoles,
   ]);
 
   const resetForm = () => {
