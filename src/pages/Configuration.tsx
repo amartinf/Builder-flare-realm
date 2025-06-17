@@ -427,6 +427,9 @@ export default function Configuration() {
       case "ncStatus":
         setNCStatuses(ncStatuses.filter((s) => s.value !== item.value));
         break;
+      case "userRole":
+        setUserRoles(userRoles.filter((r) => r.value !== item.value));
+        break;
     }
 
     toast({
