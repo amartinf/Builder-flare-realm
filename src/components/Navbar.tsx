@@ -162,7 +162,13 @@ export function Navbar() {
             <Button
               variant="ghost"
               className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => {
+                console.log(
+                  "Mobile menu button clicked, current state:",
+                  isMobileMenuOpen,
+                );
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+              }}
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
