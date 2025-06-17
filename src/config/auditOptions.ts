@@ -51,58 +51,173 @@ export interface NonConformityStatus {
   description?: string;
 }
 
-// TIPOS DE AUDITORÍA
+// TIPOS DE AUDITORÍA (Según etapas del proceso de certificación)
 // Edita aquí para agregar, quitar o modificar tipos de auditoría
 export const AUDIT_TYPES: AuditType[] = [
   {
-    value: "Calidad",
-    label: "Calidad",
+    value: "etapa_1",
+    label: "Etapa 1",
     color: "#0ea5e9",
-    description:
-      "Auditorías de sistemas de gestión de calidad (ISO 9001, etc.)",
+    description: "Auditoría de revisión documental y preparación",
   },
   {
-    value: "Ambiental",
-    label: "Ambiental",
+    value: "etapa_2",
+    label: "Etapa 2",
     color: "#22c55e",
-    description: "Auditorías de gestión ambiental (ISO 14001, etc.)",
+    description: "Auditoría de certificación - implementación del sistema",
   },
   {
-    value: "Seguridad",
-    label: "Seguridad",
-    color: "#ef4444",
-    description:
-      "Auditorías de seguridad y salud ocupacional (ISO 45001, etc.)",
-  },
-  {
-    value: "Financiera",
-    label: "Financiera",
+    value: "seguimiento",
+    label: "Seguimiento",
     color: "#f59e0b",
-    description: "Auditorías financieras y contables",
+    description: "Auditoría de seguimiento anual",
   },
   {
-    value: "Procesos",
-    label: "Procesos",
+    value: "renovacion",
+    label: "Renovación",
     color: "#8b5cf6",
-    description: "Auditorías de procesos internos y operacionales",
+    description: "Auditoría de renovación de certificado (cada 3 años)",
   },
   {
-    value: "Cumplimiento",
-    label: "Cumplimiento",
-    color: "#06b6d4",
-    description: "Auditorías de cumplimiento normativo y legal",
+    value: "extraordinaria",
+    label: "Extraordinaria",
+    color: "#ef4444",
+    description: "Auditoría extraordinaria por cambios significativos",
   },
   {
-    value: "TI",
-    label: "Tecnología",
-    color: "#84cc16",
-    description: "Auditorías de sistemas y seguridad informática",
-  },
-  {
-    value: "Interna",
+    value: "interna",
     label: "Interna",
     color: "#64748b",
-    description: "Auditorías internas generales",
+    description: "Auditoría interna del cliente",
+  },
+];
+
+// MODALIDADES DE AUDITORÍA
+export interface AuditModality {
+  value: string;
+  label: string;
+  description?: string;
+}
+
+export const AUDIT_MODALITIES: AuditModality[] = [
+  {
+    value: "in_situ",
+    label: "In Situ",
+    description: "Auditoría presencial en las instalaciones del cliente",
+  },
+  {
+    value: "online",
+    label: "Online",
+    description: "Auditoría remota a través de medios digitales",
+  },
+  {
+    value: "mixta",
+    label: "Mixta",
+    description: "Combinación de auditoría presencial y remota",
+  },
+];
+
+// NORMAS ISO AUDITADAS
+export interface ISOStandard {
+  value: string;
+  label: string;
+  fullName: string;
+  color?: string;
+}
+
+export const ISO_STANDARDS: ISOStandard[] = [
+  {
+    value: "iso_9001",
+    label: "ISO 9001",
+    fullName: "ISO 9001:2015 - Sistemas de Gestión de Calidad",
+    color: "#0ea5e9",
+  },
+  {
+    value: "iso_14001",
+    label: "ISO 14001",
+    fullName: "ISO 14001:2015 - Sistemas de Gestión Ambiental",
+    color: "#22c55e",
+  },
+  {
+    value: "iso_45001",
+    label: "ISO 45001",
+    fullName:
+      "ISO 45001:2018 - Sistemas de Gestión de Seguridad y Salud en el Trabajo",
+    color: "#ef4444",
+  },
+  {
+    value: "iso_27001",
+    label: "ISO 27001",
+    fullName:
+      "ISO 27001:2022 - Sistemas de Gestión de Seguridad de la Información",
+    color: "#8b5cf6",
+  },
+  {
+    value: "iso_50001",
+    label: "ISO 50001",
+    fullName: "ISO 50001:2018 - Sistemas de Gestión de la Energía",
+    color: "#f59e0b",
+  },
+  {
+    value: "iso_22000",
+    label: "ISO 22000",
+    fullName: "ISO 22000:2018 - Sistemas de Gestión de Seguridad Alimentaria",
+    color: "#06b6d4",
+  },
+  {
+    value: "iso_13485",
+    label: "ISO 13485",
+    fullName:
+      "ISO 13485:2016 - Sistemas de Gestión de Calidad para Productos Sanitarios",
+    color: "#84cc16",
+  },
+  {
+    value: "iso_37001",
+    label: "ISO 37001",
+    fullName: "ISO 37001:2016 - Sistemas de Gestión Antisoborno",
+    color: "#f97316",
+  },
+];
+
+// ROLES DEL EQUIPO AUDITOR
+export interface AuditorRole {
+  value: string;
+  label: string;
+  isLeader: boolean;
+  description: string;
+}
+
+export const AUDITOR_ROLES: AuditorRole[] = [
+  {
+    value: "auditor_lider",
+    label: "Auditor Líder",
+    isLeader: true,
+    description: "Responsable de dirigir el equipo auditor y la auditoría",
+  },
+  {
+    value: "auditor_principal",
+    label: "Auditor Principal",
+    isLeader: false,
+    description:
+      "Auditor con experiencia que realiza auditorías independientes",
+  },
+  {
+    value: "auditor_junior",
+    label: "Auditor Junior",
+    isLeader: false,
+    description: "Auditor en formación que asiste al equipo auditor",
+  },
+  {
+    value: "experto_tecnico",
+    label: "Experto Técnico",
+    isLeader: false,
+    description: "Especialista técnico que asesora en temas específicos",
+  },
+  {
+    value: "observador",
+    label: "Observador",
+    isLeader: false,
+    description: "Persona que observa la auditoría con fines de aprendizaje",
   },
 ];
 
