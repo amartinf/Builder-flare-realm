@@ -93,7 +93,9 @@ const mapFileMakerAudit = (fmAudit: FileMakerAudit): Audit => ({
   dueDate: fmAudit["Audits::DueDate"],
   workingDays: fmAudit["Audits::WorkingDays"] || 1,
   auditor: fmAudit["Audits::Auditor"],
-  teamMembers: fmAudit["Audits::TeamMembers"] ? JSON.parse(fmAudit["Audits::TeamMembers"]) : [],
+  teamMembers: fmAudit["Audits::TeamMembers"]
+    ? JSON.parse(fmAudit["Audits::TeamMembers"])
+    : [],
   modality: fmAudit["Audits::Modality"] || "in_situ",
   isoStandard: fmAudit["Audits::ISOStandard"] || "iso_9001",
   nonConformities: fmAudit["Audits::NonConformityCount"] || 0,
@@ -167,7 +169,8 @@ export const useAudits = () => {
         const response = await fileMakerAPI.getRecords<FileMakerAudit>(
           LAYOUTS.AUDITS,
         );
-        const mappedAudits = response.response.data?.map(mapFileMakerAudit) || [];
+        const mappedAudits =
+          response.response.data?.map(mapFileMakerAudit) || [];
         setAudits(mappedAudits);
       }
     } catch (err) {
@@ -180,7 +183,8 @@ export const useAudits = () => {
       if (!shouldUseMockData()) {
         toast({
           title: "Error de conexión",
-          description: "No se pudo conectar con FileMaker. Usando datos de demostración.",
+          description:
+            "No se pudo conectar con FileMaker. Usando datos de demostración.",
           variant: "destructive",
         });
       }
@@ -269,12 +273,15 @@ export const useAudits = () => {
         if (shouldUseMockData()) {
           // Use mock data
           console.log("Using mock data, calling MockFileMakerAPI.updateAudit");
-          const updatedAudit = await MockFileMakerAPI.updateAudit(id, auditData);
+          const updatedAudit = await MockFileMakerAPI.updateAudit(
+            id,
+            auditData,
+          );
           console.log("Mock API returned:", updatedAudit);
 
           setAudits((prev) => {
             console.log("Previous audits count:", prev.length);
-            const auditExists = prev.find(a => a.id === id);
+            const auditExists = prev.find((a) => a.id === id);
             if (!auditExists) {
               console.error("Audit not found in state:", id);
               return prev;
@@ -363,7 +370,7 @@ export const useAudits = () => {
 
         setAudits((prev) => {
           console.log("Previous audits count before delete:", prev.length);
-          const auditExists = prev.find(a => a.id === id);
+          const auditExists = prev.find((a) => a.id === id);
           if (!auditExists) {
             console.error("Audit to delete not found in state:", id);
             return prev;
@@ -404,7 +411,6 @@ export const useAudits = () => {
     createAudit,
     updateAudit,
     deleteAudit,
-  };
   };
 };
 
