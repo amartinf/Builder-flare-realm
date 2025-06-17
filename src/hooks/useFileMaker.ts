@@ -87,8 +87,16 @@ const mapFileMakerAudit = (fmAudit: FileMakerAudit): Audit => ({
   type: fmAudit["Audits::Type"],
   status: fmAudit["Audits::Status"],
   progress: fmAudit["Audits::Progress"],
+  startDate: fmAudit["Audits::StartDate"] || fmAudit["Audits::DueDate"],
+  endDate: fmAudit["Audits::EndDate"] || fmAudit["Audits::DueDate"],
   dueDate: fmAudit["Audits::DueDate"],
+  workingDays: fmAudit["Audits::WorkingDays"] || 1,
   auditor: fmAudit["Audits::Auditor"],
+  teamMembers: fmAudit["Audits::TeamMembers"]
+    ? JSON.parse(fmAudit["Audits::TeamMembers"])
+    : [],
+  modality: fmAudit["Audits::Modality"] || "in_situ",
+  isoStandard: fmAudit["Audits::ISOStandard"] || "iso_9001",
   nonConformities: fmAudit["Audits::NonConformityCount"] || 0,
   evidences: fmAudit["Audits::EvidenceCount"] || 0,
   createdDate: fmAudit["Audits::CreatedDate"],
