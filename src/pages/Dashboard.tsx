@@ -187,16 +187,36 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                console.log("Ver reportes clicked");
+                alert("¡Botón Ver reportes funciona!");
+              }}
+            >
               <BarChart3 className="w-4 h-4 mr-2" />
               Ver reportes
             </Button>
             <Link to="/audits">
-              <Button className="w-full sm:w-auto audit-gradient text-white">
+              <Button
+                className="w-full sm:w-auto audit-gradient text-white"
+                onClick={() => console.log("Nueva auditoría link clicked")}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Nueva auditoría
               </Button>
             </Link>
+            <Button
+              variant="secondary"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                console.log("Botón de prueba clicked");
+                alert("¡Los botones están funcionando correctamente!");
+              }}
+            >
+              🧪 Prueba Funcionalidad
+            </Button>
           </div>
         </div>
 
