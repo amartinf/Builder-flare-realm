@@ -87,6 +87,21 @@ interface EditDialogState {
 }
 
 const USERS_STORAGE_KEY = "auditpro-users";
+const CONFIG_STORAGE_KEY = "auditpro-configuration";
+
+// Function to load dynamic roles from configuration
+const loadDynamicRoles = (): UserRole[] => {
+  try {
+    const stored = localStorage.getItem(CONFIG_STORAGE_KEY);
+    if (stored) {
+      const config = JSON.parse(stored);
+      return config.userRoles || USER_ROLES;
+    }
+  } catch (error) {
+    console.error("Error loading dynamic roles:", error);
+  }
+  return USER_ROLES;
+};
 
 // Datos de ejemplo para demostración
 const SAMPLE_USERS: User[] = [
