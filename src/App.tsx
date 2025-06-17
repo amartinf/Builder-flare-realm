@@ -19,6 +19,7 @@ import Configuration from "./pages/Configuration";
 import Users from "./pages/Users";
 import Reports from "./pages/Reports";
 import Diagnostics from "./pages/Diagnostics";
+import FileMakerConfig from "./pages/FileMakerConfig";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -139,6 +140,14 @@ function AppContent() {
         element={
           <ProtectedRoute requiredRole="admin">
             <Diagnostics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/filemaker-config"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <FileMakerConfig />
           </ProtectedRoute>
         }
       />
