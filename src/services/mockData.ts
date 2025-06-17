@@ -400,17 +400,39 @@ export class MockFileMakerAPI {
   }
 
   static async createAudit(
-    audit: Omit<MockAudit, "id" | "nonConformities" | "evidences">,
+    auditData: Omit<MockAudit, "id" | "nonConformities" | "evidences">,
   ): Promise<MockAudit> {
     await delay(800);
+
     const newAudit: MockAudit = {
-      ...audit,
-      id: Math.max(...mockAudits.map((a) => a.id)) + 1,
+      ...auditData,
+      id: Math.max(...mockAudits.map((a) => a.id), 0) + 1,
       nonConformities: 0,
       evidences: 0,
     };
+
     mockAudits.push(newAudit);
     return newAudit;
+  }
+
+  static async updateAudit(
+    id: number,
+    auditData: Partial<MockAudit>,
+  ): Promise<MockAudit> {
+    await delay(600);
+
+    const auditIndex = mockAudits.findIndex((audit) => audit.id === id);
+    if (auditIndex === -1) {
+      throw new Error("Auditoría no encontrada");
+    }
+
+    // Update the audit with the new data
+    mockAudits[auditIndex] = {
+      ...mockAudits[auditIndex],
+      ...auditData,
+    };
+
+    return mockAudits[auditIndex];
   }
 
   static async updateAudit(
