@@ -159,18 +159,26 @@ export const mockAudits: MockAudit[] = [
     workingDays: 3,
     auditor: "Ana López",
     teamMembers: [
-      { userId: "3", name: "Ana López", role: "auditor_lider", isLeader: true },
+      {
+        userId: "3",
+        name: "Ana López",
+        role: "auditor_lider",
+        isLeader: true,
+        assignedDays: 3,
+      },
       {
         userId: "1",
         name: "María González",
         role: "auditor_principal",
         isLeader: false,
+        assignedDays: 2,
       },
       {
         userId: "5",
         name: "Roberto Silva",
         role: "auditor_junior",
         isLeader: false,
+        assignedDays: 1,
       },
     ],
     modality: "in_situ",
