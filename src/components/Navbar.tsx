@@ -134,10 +134,6 @@ export function Navbar() {
                   <User className="mr-2 h-4 w-4" />
                   <span>Perfil</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Configuración</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/users">
                     <Users className="mr-2 h-4 w-4" />
