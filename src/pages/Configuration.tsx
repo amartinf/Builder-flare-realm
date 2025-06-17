@@ -885,21 +885,21 @@ export default function Configuration() {
             <ConfigurationSection
               title="Modalidades de Auditoría"
               description="Define las modalidades disponibles para realizar auditorías"
-              items={getAuditModalityOptions()}
+              items={auditModalities}
               type="auditModality"
             />
 
             <ConfigurationSection
               title="Normas ISO"
               description="Define las normas ISO disponibles para auditar"
-              items={getISOStandardOptions()}
+              items={isoStandards}
               type="isoStandard"
             />
 
             <ConfigurationSection
               title="Roles del Equipo Auditor"
               description="Define los roles disponibles para los miembros del equipo auditor"
-              items={getAuditorRoleOptions()}
+              items={auditorRoles}
               type="auditorRole"
             />
           </TabsContent>
