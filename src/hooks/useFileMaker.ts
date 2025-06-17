@@ -259,16 +259,25 @@ export const useAudits = () => {
 
   const updateAudit = useCallback(
     async (id: number, auditData: Partial<Audit>) => {
+      console.log("useAudits.updateAudit called with:", { id, auditData });
       try {
         if (shouldUseMockData()) {
           // Use mock data
+          console.log("Using mock data, calling MockFileMakerAPI.updateAudit");
           const updatedAudit = await MockFileMakerAPI.updateAudit(
             id,
             auditData,
           );
-          setAudits((prev) =>
-            prev.map((a) => (a.id === id ? updatedAudit : a)),
-          );
+          console.log("Mock API returned:", updatedAudit);
+
+          setAudits((prev) => {
+            const newAudits = prev.map((a) => (a.id === id ? updatedAudit : a));
+            console.log("Updated audits state:", newAudits);
+            return newAudits;
+          });
+
+          console.log("useAudits.updateAudit completed successfully");
+          return updatedAudit;
         } else {
           // Use real FileMaker API
           const audit = audits.find((a) => a.id === id);
