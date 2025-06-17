@@ -90,6 +90,9 @@ interface EditDialogState {
     | "ncSeverity"
     | "ncStatus"
     | "userRole"
+    | "auditModality"
+    | "isoStandard"
+    | "auditorRole"
     | null;
   item: any;
   isNew: boolean;
