@@ -127,9 +127,9 @@ function getModalityIcon(modality: string) {
     case "in_situ":
       return <MapPin className="w-4 h-4 text-blue-600" />;
     case "online":
-      return <Monitor className="w-4 h-4 text-green-600" />;
+      return <Users className="w-4 h-4 text-green-600" />;
     case "mixta":
-      return <Shuffle className="w-4 h-4 text-purple-600" />;
+      return <FileText className="w-4 h-4 text-purple-600" />;
     default:
       return <MapPin className="w-4 h-4 text-gray-400" />;
   }
