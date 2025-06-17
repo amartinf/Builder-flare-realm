@@ -5,6 +5,7 @@ export interface MockAuditTeamMember {
   name: string;
   role: string;
   isLeader: boolean;
+  assignedDays: number;
 }
 
 export interface MockAudit {
