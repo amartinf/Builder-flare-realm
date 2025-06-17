@@ -1102,41 +1102,30 @@ export default function Audits() {
                       {formData.teamMembers.map((member) => (
                         <div
                           key={member.userId}
-                          className="flex items-center justify-between p-3 border rounded-lg"
+                          className="p-3 border rounded-lg space-y-3"
                         >
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="flex items-center gap-2">
-                              {member.isLeader && (
-                                <Shield className="w-4 h-4 text-primary" />
-                              )}
-                              <span className="font-medium">{member.name}</span>
-                            </div>
-                            <Badge
-                              variant={
-                                member.isLeader ? "default" : "secondary"
-                              }
-                            >
-                              {
-                                availableAuditorRoles.find(
-                                  (r) => r.value === member.role,
-                                )?.label
-                              }
-                            </Badge>
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              <span>
-                                {member.assignedDays} jornada
-                                {member.assignedDays !== 1 ? "s" : ""}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-xs text-muted-foreground">
-                              {Math.round(
-                                (member.assignedDays / formData.workingDays) *
-                                  100,
-                              )}
-                              %
+                          {/* Member Info Row */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className="flex items-center gap-2">
+                                {member.isLeader && (
+                                  <Shield className="w-4 h-4 text-primary" />
+                                )}
+                                <span className="font-medium">
+                                  {member.name}
+                                </span>
+                              </div>
+                              <Badge
+                                variant={
+                                  member.isLeader ? "default" : "secondary"
+                                }
+                              >
+                                {
+                                  availableAuditorRoles.find(
+                                    (r) => r.value === member.role,
+                                  )?.label
+                                }
+                              </Badge>
                             </div>
                             <Button
                               type="button"
@@ -1146,6 +1135,51 @@ export default function Audits() {
                             >
                               <X className="w-4 h-4" />
                             </Button>
+                          </div>
+
+                          {/* Time Assignment Controls */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm">
+                                Jornadas Asignadas
+                              </Label>
+                              <div className="text-xs text-muted-foreground">
+                                {Math.round(
+                                  (member.assignedDays / formData.workingDays) *
+                                    100,
+                                )}
+                                % del tiempo total
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                min="0.5"
+                                max={formData.workingDays}
+                                step="0.5"
+                                value={member.assignedDays}
+                                onChange={(e) => {
+                                  const newDays =
+                                    parseFloat(e.target.value) || 0;
+                                  adjustMemberTime(member.userId, newDays);
+                                }}
+                                className="w-20 h-8"
+                              />
+                              <span className="text-sm text-muted-foreground">
+                                de {formData.workingDays} días
+                              </span>
+                              <div className="flex-1">
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                    style={{
+                                      width: `${Math.min((member.assignedDays / formData.workingDays) * 100, 100)}%`,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
