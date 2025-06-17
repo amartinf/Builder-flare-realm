@@ -152,6 +152,18 @@ const loadDynamicAuditorRoles = () => {
 export default function Audits() {
   const { toast } = useToast();
 
+  // Debug function to test audit update from console
+  (window as any).testAuditUpdate = async (id: number, data: any) => {
+    try {
+      console.log("Testing audit update:", { id, data });
+      const { updateAudit } = useAudits();
+      await updateAudit(id, data);
+      console.log("Update successful");
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
   // FileMaker integration
   const { audits, loading, error, createAudit, updateAudit, deleteAudit } =
     useAudits();
