@@ -83,6 +83,7 @@ interface EditDialogState {
     | "ncCategory"
     | "ncSeverity"
     | "ncStatus"
+    | "userRole"
     | null;
   item: any;
   isNew: boolean;
