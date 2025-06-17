@@ -443,18 +443,6 @@ export class MockFileMakerAPI {
     return mockAudits[auditIndex];
   }
 
-  static async updateAudit(
-    id: number,
-    updates: Partial<MockAudit>,
-  ): Promise<MockAudit> {
-    await delay(600);
-    const index = mockAudits.findIndex((a) => a.id === id);
-    if (index === -1) throw new Error("Audit not found");
-
-    mockAudits[index] = { ...mockAudits[index], ...updates };
-    return mockAudits[index];
-  }
-
   static async deleteAudit(id: number): Promise<void> {
     await delay(400);
     const index = mockAudits.findIndex((a) => a.id === id);
