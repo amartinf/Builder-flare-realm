@@ -201,6 +201,30 @@ export default function Users() {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
   }, [users]);
 
+  // Reload roles when configuration changes
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === CONFIG_STORAGE_KEY) {
+        setAvailableRoles(loadDynamicRoles());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Also check for changes periodically (for same-tab updates)
+    const interval = setInterval(() => {
+      const newRoles = loadDynamicRoles();
+      if (JSON.stringify(newRoles) !== JSON.stringify(availableRoles)) {
+        setAvailableRoles(newRoles);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [availableRoles]);
+
   // Filter users based on search and filters
   useEffect(() => {
     let filtered = users;
