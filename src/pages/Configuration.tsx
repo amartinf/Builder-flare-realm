@@ -762,6 +762,117 @@ export default function Configuration() {
               type="evidenceCategory"
             />
           </TabsContent>
+
+          {/* Roles Tab */}
+          <TabsContent value="roles" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-lg">Roles de Usuario</CardTitle>
+                    <CardDescription>
+                      Define los roles disponibles y sus permisos en el sistema
+                      de workflow
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => openEditDialog("userRole", null, true)}
+                    size="sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Agregar Rol
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {userRoles.map((role, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="font-medium text-lg">
+                            {role.label}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {role.value}
+                          </Badge>
+                        </div>
+                        {role.description && (
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {role.description}
+                          </p>
+                        )}
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium">
+                            Permisos ({role.permissions.length}):
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {role.permissions.map((permission, permIndex) => (
+                              <Badge
+                                key={permIndex}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {permission.replace(/_/g, " ")}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openEditDialog("userRole", role, false)
+                          }
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                ¿Estás seguro?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta acción no se puede deshacer. Se eliminará
+                                permanentemente el rol "{role.label}" del
+                                sistema. Los usuarios con este rol perderán sus
+                                permisos.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete("userRole", role)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Eliminar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                  {userRoles.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No hay roles configurados
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
         {/* Edit Dialog */}
