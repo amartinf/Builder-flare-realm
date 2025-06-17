@@ -819,6 +819,90 @@ export default function FileMakerConfig() {
           </Card>
         )}
 
+        {/* Production Mode Setup Instructions */}
+        {config.preferences.useMockData && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Configurar Modo Producción
+              </CardTitle>
+              <CardDescription>
+                Pasos para conectar con el servidor FileMaker real
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">
+                    📋 Lista de verificación:
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={!!config.server.host}
+                        readOnly
+                      />
+                      <span>Configurar servidor FileMaker</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={!!config.database.name}
+                        readOnly
+                      />
+                      <span>Especificar base de datos</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={!!config.authentication.username}
+                        readOnly
+                      />
+                      <span>Configurar credenciales</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={!!config.authentication.password}
+                        readOnly
+                      />
+                      <span>Establecer contraseña</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                  <h4 className="font-medium mb-2 text-amber-800">
+                    ⚠️ Requisitos del servidor:
+                  </h4>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• FileMaker Server debe estar ejecutándose</li>
+                    <li>• API de datos debe estar habilitada</li>
+                    <li>• Usuario debe tener permisos de API</li>
+                    <li>• Puertos de red deben estar abiertos</li>
+                  </ul>
+                </div>
+
+                <Button
+                  onClick={handleSwitchToProduction}
+                  disabled={
+                    !config.server.host ||
+                    !config.database.name ||
+                    !config.authentication.username ||
+                    !config.authentication.password
+                  }
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  Activar Modo Producción
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Connection URL Preview */}
         <Card>
           <CardHeader>
@@ -838,6 +922,11 @@ export default function FileMakerConfig() {
                 {config.database.name}
               </code>
             </div>
+            {!config.preferences.useMockData && (
+              <div className="mt-2 text-sm text-green-700 font-medium">
+                ✅ Esta URL se utilizará para conexiones de producción
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
