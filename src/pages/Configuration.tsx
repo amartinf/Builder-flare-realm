@@ -147,6 +147,9 @@ export default function Configuration() {
   const [ncStatuses, setNCStatuses] = useState<NonConformityStatus[]>(
     initialConfig.ncStatuses,
   );
+  const [userRoles, setUserRoles] = useState<UserRole[]>(
+    initialConfig.userRoles,
+  );
 
   const [hasChanges, setHasChanges] = useState(false);
 
