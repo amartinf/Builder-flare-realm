@@ -193,6 +193,16 @@ export default function Audits() {
   // Dynamic roles
   const [availableAuditorRoles, setAvailableAuditorRoles] = useState(loadDynamicAuditorRoles());
 
+  // Monitor audits changes for debugging
+  useEffect(() => {
+    console.log("Audits state changed:", {
+      count: audits.length,
+      loading,
+      error,
+      auditsIds: audits.map(a => a.id),
+    });
+  }, [audits, loading, error]);
+
   // Local state for UI
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -575,32 +585,47 @@ export default function Audits() {
     }
   };
 
-  // Filtered audits
+  // Filtered audits with error handling
   const filteredAudits = useMemo(() => {
-    return audits.filter((audit) => {
-      const matchesSearch = audit.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" ||
-        audit.status === statusFilter ||
-        AUDIT_STATUS_FILTER_MAP[statusFilter] === audit.status;
-      const matchesType =
-        typeFilter === "all" ||
-        audit.type === typeFilter ||
-        AUDIT_TYPE_FILTER_MAP[typeFilter] === audit.type;
-      const matchesModality =
-        modalityFilter === "all" || audit.modality === modalityFilter;
-      const matchesISO = isoFilter === "all" || audit.isoStandard === isoFilter;
+    if (!Array.isArray(audits)) {
+      console.error("Audits is not an array:", audits);
+      return [];
+    }
 
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesType &&
-        matchesModality &&
-        matchesISO
-      );
-    });
+    try {
+      return audits.filter((audit) => {
+        if (!audit || typeof audit !== 'object') {
+          console.error("Invalid audit object:", audit);
+          return false;
+        }
+
+        const matchesSearch = audit.name
+          ?.toLowerCase()
+          ?.includes(searchQuery.toLowerCase()) ?? false;
+        const matchesStatus =
+          statusFilter === "all" ||
+          audit.status === statusFilter ||
+          AUDIT_STATUS_FILTER_MAP[statusFilter] === audit.status;
+        const matchesType =
+          typeFilter === "all" ||
+          audit.type === typeFilter ||
+          AUDIT_TYPE_FILTER_MAP[typeFilter] === audit.type;
+        const matchesModality =
+          modalityFilter === "all" || audit.modality === modalityFilter;
+        const matchesISO = isoFilter === "all" || audit.isoStandard === isoFilter;
+
+        return (
+          matchesSearch &&
+          matchesStatus &&
+          matchesType &&
+          matchesModality &&
+          matchesISO
+        );
+      });
+    } catch (filterError) {
+      console.error("Error filtering audits:", filterError);
+      return [];
+    }
   }, [
     audits,
     searchQuery,
