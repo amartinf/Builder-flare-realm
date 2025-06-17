@@ -21,6 +21,7 @@ import {
   Settings,
   User,
   Shield,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
