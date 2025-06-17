@@ -12,6 +12,7 @@ import CorrectiveActions from "./pages/CorrectiveActions";
 import ClientPortal from "./pages/ClientPortal";
 import Configuration from "./pages/Configuration";
 import Users from "./pages/Users";
+import Diagnostics from "./pages/Diagnostics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
