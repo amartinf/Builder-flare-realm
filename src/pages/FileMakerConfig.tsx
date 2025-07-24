@@ -192,7 +192,8 @@ export default function FileMakerConfig() {
     setTestResults("");
 
     try {
-      const testUrl = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
+      const port = config.server.port || 443;
+      const testUrl = `${config.server.protocol}://${config.server.host}:${port}`;
 
       if (config.preferences.useMockData) {
         // Demo mode test
@@ -201,10 +202,11 @@ export default function FileMakerConfig() {
         setTestResults(`✓ Modo de demostración activo
 ✓ Configuración válida
 ✓ Layouts configurados correctamente
-✓ Sistema listo para usar datos de prueba`);
+✓ Sistema listo para usar datos de prueba
+✓ API RESTful simulada funcionando`);
       } else {
-        // Real connection test
-        console.log("Testing real FileMaker connection to:", testUrl);
+        // Real RESTful connection test using FileMaker Data API
+        console.log("Testing real FileMaker RESTful connection to:", testUrl);
 
         const hasValidConfig =
           config.server.host &&
@@ -216,39 +218,68 @@ export default function FileMakerConfig() {
           throw new Error("Configuración incompleta: faltan campos requeridos");
         }
 
-        // In a real implementation, this would make an actual API call
-        // For now, we'll simulate a connection test
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // Save current config and test real connection
+        const currentConfig = {
+          server: {
+            host: config.server.host,
+            port: port,
+            protocol: config.server.protocol,
+            timeout: config.server.timeout,
+          },
+          database: {
+            name: config.database.name,
+          },
+          authentication: {
+            username: config.authentication.username,
+            password: config.authentication.password,
+          },
+          preferences: {
+            useMockData: false,
+          },
+        };
 
-        // Check if the URL is reachable (simulated)
-        const isLocalhost =
-          config.server.host.includes("localhost") ||
-          config.server.host.includes("127.0.0.1");
+        localStorage.setItem("filemaker-config", JSON.stringify(currentConfig));
 
-        if (isLocalhost) {
-          // If localhost, assume it might work
+        // Test using FileMaker Data API
+        const { fileMakerAPI } = await import("@/services/filemakerApi");
+        const testResult = await fileMakerAPI.testConnection();
+
+        if (testResult.success) {
           setConnectionStatus("success");
           setTestResults(`✓ Conectado a: ${testUrl}
 ✓ Base de datos: ${config.database.name}
 ✓ Usuario autenticado: ${config.authentication.username}
+✓ API RESTful funcionando correctamente
+✓ Tiempo de respuesta: ${testResult.responseTime}ms
 ✓ Layouts disponibles: ${Object.values(config.layouts).join(", ")}
-✓ Modo PRODUCCIÓN activado`);
+✓ Modo PRODUCCIÓN activado
+✓ Usando FileMaker Data API v1 (JSON)
+
+Información del servidor:
+${testResult.serverInfo ? JSON.stringify(testResult.serverInfo, null, 2) : 'No disponible'}`);
         } else {
-          // For remote servers, we'd need actual testing
-          throw new Error(
-            "No se puede verificar la conexión remota desde el navegador",
-          );
+          throw new Error(testResult.message);
         }
       }
     } catch (error) {
       setConnectionStatus("error");
       const errorMessage =
         error instanceof Error ? error.message : "Error desconocido";
-      setTestResults(`✗ Error de conexión: ${errorMessage}
+      setTestResults(`✗ Error de conexión RESTful: ${errorMessage}
 ✗ Verificar que FileMaker Server esté ejecutándose
-✗ Verificar configuración de red y puertos
+✗ Verificar que la API de datos esté habilitada
+✗ Verificar configuración de red y puertos (${config.server.port || 443})
 ✗ Revisar credenciales de acceso
-✗ Verificar que la API de datos esté habilitada`);
+✗ Verificar certificados SSL si usa HTTPS
+✗ Confirmar que el usuario tenga permisos de API
+
+URL de prueba: ${config.server.protocol}://${config.server.host}:${config.server.port || 443}/fmi/data/v1/databases/${config.database.name}
+
+Notas sobre API RESTful:
+• FileMaker Data API usa solicitudes HTTP (GET, POST, PATCH, DELETE)
+• Las respuestas son en formato JSON
+• Requiere autenticación con token Bearer
+• El puerto por defecto es 443 para HTTPS`);
     }
   };
 
@@ -462,14 +493,15 @@ export default function FileMakerConfig() {
                   <Input
                     id="port"
                     type="number"
-                    value={config.server.port}
+                    value={config.server.port || ""}
                     onChange={(e) =>
                       handleConfigChange(
                         "server",
                         "port",
-                        parseInt(e.target.value),
+                        e.target.value ? parseInt(e.target.value) : 443,
                       )
                     }
+                    placeholder="443"
                   />
                 </div>
               </div>

@@ -42,13 +42,11 @@ class FileMakerAPI {
     this.baseURL = `https://${config.server}/fmi/data/vLatest/databases/${config.database}`;
   }
 
-  // Authentication
+  // Authentication - RESTful POST request with JSON response
   async authenticate(): Promise<string> {
     // Check if FileMaker is configured
     if (!isFileMakerConfigured()) {
-      throw new Error(
-        "FileMaker not configured. Please set VITE_FILEMAKER_* environment variables.",
-      );
+      throw new Error("FileMaker not configured. Please configure server connection first.");
     }
 
     if (this.auth && this.auth.expiry > Date.now()) {
@@ -56,30 +54,39 @@ class FileMakerAPI {
     }
 
     try {
+      console.log(`[FileMaker API] Authenticating to: ${this.baseURL}/sessions`);
+
       const response = await fetch(`${this.baseURL}/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${btoa(`${this.config.username}:${this.config.password}`)}`,
+          "Authorization": `Basic ${btoa(`${this.config.username}:${this.config.password}`)}`,
+          "Accept": "application/json",
         },
+        body: JSON.stringify({}) // Empty body for authentication
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-      if (data.messages[0].code === "0") {
+      const data: FileMakerResponse = await response.json();
+      console.log("[FileMaker API] Authentication response:", data);
+
+      if (data.messages && data.messages[0] && data.messages[0].code === "0") {
         this.auth = {
           token: data.response.token,
           expiry: Date.now() + 14 * 60 * 1000, // 14 minutes
         };
+        console.log("[FileMaker API] Authentication successful, token acquired");
         return this.auth.token;
       } else {
-        throw new Error(
-          `FileMaker authentication failed: ${data.messages[0].message}`,
-        );
+        const errorMsg = data.messages?.[0]?.message || "Unknown authentication error";
+        throw new Error(`FileMaker authentication failed: ${errorMsg}`);
       }
     } catch (error) {
-      console.error("FileMaker authentication error:", error);
-      throw error;
+      console.error("[FileMaker API] Authentication error:", error);
+      throw new Error(`Connection failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
@@ -97,29 +104,49 @@ class FileMakerAPI {
     }
   }
 
-  // Generic request method
+  // Generic RESTful request method with proper HTTP handling and JSON parsing
   private async request<T = any>(
     endpoint: string,
     options: RequestInit = {},
   ): Promise<FileMakerResponse<T>> {
     const token = await this.authenticate();
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        ...options.headers,
-      },
-    });
+    const url = `${this.baseURL}${endpoint}`;
+    console.log(`[FileMaker API] ${options.method || 'GET'} request to: ${url}`);
 
-    const data = await response.json();
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          ...options.headers,
+        },
+      });
 
-    if (data.messages[0].code !== "0") {
-      throw new Error(`FileMaker API error: ${data.messages[0].message}`);
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Parse JSON response
+      const data: FileMakerResponse<T> = await response.json();
+      console.log(`[FileMaker API] Response:`, data);
+
+      // Check FileMaker specific error codes
+      if (data.messages && data.messages[0] && data.messages[0].code !== "0") {
+        throw new Error(`FileMaker API error: ${data.messages[0].message} (Code: ${data.messages[0].code})`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error(`[FileMaker API] Request failed:`, error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Network error: Unable to connect to FileMaker Server at ${this.config.server}`);
+      }
+      throw error;
     }
-
-    return data;
   }
 
   // CRUD Operations
@@ -233,6 +260,66 @@ class FileMakerAPI {
 
     return response.json();
   }
+
+  // Test RESTful connection to FileMaker Server
+  async testConnection(): Promise<{
+    success: boolean;
+    message: string;
+    responseTime: number;
+    serverInfo?: any;
+  }> {
+    const startTime = Date.now();
+
+    try {
+      console.log("[FileMaker API] Testing connection...");
+
+      // First test: Basic server connectivity
+      const healthUrl = `${this.config.server}/fmi/admin/api/v2/server/status`;
+      let serverResponse;
+
+      try {
+        serverResponse = await fetch(healthUrl, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+          },
+          timeout: 10000,
+        });
+      } catch (error) {
+        // If admin API is not accessible, try Data API
+        console.log("[FileMaker API] Admin API not accessible, testing Data API...");
+      }
+
+      // Second test: Data API authentication
+      const token = await this.authenticate();
+
+      // Third test: Get database metadata
+      const metadataResponse = await this.request("/layouts");
+
+      const responseTime = Date.now() - startTime;
+
+      return {
+        success: true,
+        message: `Connection successful! Server responded in ${responseTime}ms`,
+        responseTime,
+        serverInfo: {
+          database: this.config.database,
+          layouts: metadataResponse.response?.data || [],
+          authToken: token ? "✓ Valid" : "✗ Invalid"
+        }
+      };
+
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      console.error("[FileMaker API] Connection test failed:", error);
+
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown connection error",
+        responseTime
+      };
+    }
+  }
 }
 
 // FileMaker field mappings for our application
@@ -307,8 +394,9 @@ const getFileMakerConfig = (): FileMakerConfig => {
     const storedConfig = localStorage.getItem("filemaker-config");
     if (storedConfig) {
       const config = JSON.parse(storedConfig);
+      const port = config.server.port || 443;
       return {
-        server: `${config.server.protocol}://${config.server.host}:${config.server.port}`,
+        server: `${config.server.protocol}://${config.server.host}:${port}`,
         database: config.database.name,
         username: config.authentication.username,
         password: config.authentication.password,
@@ -337,7 +425,7 @@ export const isFileMakerConfigured = (): boolean => {
     server: !!config.server,
     username: !!config.username,
     password: !!config.password,
-    isConfigured,
+    isConfigured
   });
   return isConfigured;
 };
@@ -364,7 +452,7 @@ export const shouldUseMockData = (): boolean => {
   console.log("FileMaker status:", {
     envMockData,
     filemakerConfigured,
-    shouldUseMock: envMockData || !filemakerConfigured,
+    shouldUseMock: envMockData || !filemakerConfigured
   });
 
   return envMockData || !filemakerConfigured;
