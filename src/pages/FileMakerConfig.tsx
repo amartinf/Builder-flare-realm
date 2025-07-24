@@ -265,7 +265,7 @@ export default function FileMakerConfig() {
 ✓ Usando FileMaker Data API v1 (JSON)
 
 Información del servidor:
-${testResult.serverInfo ? JSON.stringify(testResult.serverInfo, null, 2) : 'No disponible'}`);
+${testResult.serverInfo ? JSON.stringify(testResult.serverInfo, null, 2) : "No disponible"}`);
         } else {
           throw new Error(testResult.message);
         }
