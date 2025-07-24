@@ -193,7 +193,16 @@ export default function FileMakerConfig() {
 
     try {
       const port = config.server.port || 443;
-      const testUrl = `${config.server.protocol}://${config.server.host}:${port}`;
+      const protocol = config.server.protocol || "https";
+
+      // Don't include default ports in URL
+      const isDefaultPort =
+        (protocol === "https" && port === 443) ||
+        (protocol === "http" && port === 80);
+
+      const testUrl = isDefaultPort
+        ? `${protocol}://${config.server.host}`
+        : `${protocol}://${config.server.host}:${port}`;
 
       if (config.preferences.useMockData) {
         // Demo mode test
@@ -273,7 +282,7 @@ ${testResult.serverInfo ? JSON.stringify(testResult.serverInfo, null, 2) : 'No d
 ✗ Verificar certificados SSL si usa HTTPS
 ✗ Confirmar que el usuario tenga permisos de API
 
-URL de prueba: ${config.server.protocol}://${config.server.host}:${config.server.port || 443}/fmi/data/v1/databases/${config.database.name}
+URL de prueba: ${testUrl}/fmi/data/v1/databases/${config.database.name}
 
 Notas sobre API RESTful:
 • FileMaker Data API usa solicitudes HTTP (GET, POST, PATCH, DELETE)
@@ -949,9 +958,19 @@ Notas sobre API RESTful:
           <CardContent>
             <div className="p-3 bg-gray-50 rounded-lg border">
               <code className="text-sm">
-                {config.server.protocol}://{config.server.host}:
-                {config.server.port}/fmi/data/v1/databases/
-                {config.database.name}
+                {(() => {
+                  const port = config.server.port || 443;
+                  const protocol = config.server.protocol || "https";
+                  const isDefaultPort =
+                    (protocol === "https" && port === 443) ||
+                    (protocol === "http" && port === 80);
+
+                  const hostPart = isDefaultPort
+                    ? config.server.host
+                    : `${config.server.host}:${port}`;
+
+                  return `${protocol}://${hostPart}/fmi/data/v1/databases/${config.database.name}`;
+                })()}
               </code>
             </div>
             {!config.preferences.useMockData && (

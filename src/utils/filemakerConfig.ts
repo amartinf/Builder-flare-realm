@@ -85,7 +85,16 @@ export const getFileMakerURL = (config?: FileMakerConfig): string => {
     throw new Error("FileMaker configuration not found");
   }
 
-  return `${fmConfig.server.protocol}://${fmConfig.server.host}:${fmConfig.server.port}/fmi/data/v1/databases/${fmConfig.database.name}`;
+  // Don't include default ports in URL
+  const isDefaultPort =
+    (fmConfig.server.protocol === "https" && fmConfig.server.port === 443) ||
+    (fmConfig.server.protocol === "http" && fmConfig.server.port === 80);
+
+  const hostPart = isDefaultPort
+    ? fmConfig.server.host
+    : `${fmConfig.server.host}:${fmConfig.server.port}`;
+
+  return `${fmConfig.server.protocol}://${hostPart}/fmi/data/v1/databases/${fmConfig.database.name}`;
 };
 
 export const shouldUseMockData = (): boolean => {

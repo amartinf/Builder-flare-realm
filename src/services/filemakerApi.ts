@@ -305,7 +305,7 @@ class FileMakerAPI {
         serverInfo: {
           database: this.config.database,
           layouts: metadataResponse.response?.data || [],
-          authToken: token ? "✓ Valid" : "✗ Invalid"
+          authToken: token ? "�� Valid" : "✗ Invalid"
         }
       };
 
@@ -395,8 +395,19 @@ const getFileMakerConfig = (): FileMakerConfig => {
     if (storedConfig) {
       const config = JSON.parse(storedConfig);
       const port = config.server.port || 443;
+      const protocol = config.server.protocol || "https";
+
+      // Don't include default ports in server URL
+      const isDefaultPort =
+        (protocol === "https" && port === 443) ||
+        (protocol === "http" && port === 80);
+
+      const serverUrl = isDefaultPort
+        ? `${protocol}://${config.server.host}`
+        : `${protocol}://${config.server.host}:${port}`;
+
       return {
-        server: `${config.server.protocol}://${config.server.host}:${port}`,
+        server: serverUrl,
         database: config.database.name,
         username: config.authentication.username,
         password: config.authentication.password,
